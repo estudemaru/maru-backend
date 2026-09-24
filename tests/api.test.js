@@ -17,10 +17,10 @@ test("API serves content, validates phrases and round-trips isolated progress", 
   const health = await fetch(base + "/api/health").then(res => res.json());
   assert.equal(health.ok, true);
   const content = await fetch(base + "/api/content").then(res => res.json());
-  assert.equal(content.lessons.length, 37);
+  assert.equal(content.lessons.length, 40);
   assert.equal(content.beginnerKanji.length, 20);
   assert.ok(content.vocabulary.length >= 60);
-  assert.equal(content.exerciseGroups.length, 4);
+  assert.equal(content.exerciseGroups.length, 6);
   assert.equal(content.glossary.length, 26);
   const snapshot = { lessons: { welcome: { completedAt: 123, score: 3 } }, preferences: { romaji: false, dailyGoal: 10 }, xp: { total: 30 }, reviews: { test: { due: 999, attempts: 2 } } };
   const saved = await fetch(base + "/api/progress", { method: "PUT", headers: { "Content-Type": "application/json", "x-maru-user": "test" }, body: JSON.stringify(snapshot) }).then(res => res.json());
