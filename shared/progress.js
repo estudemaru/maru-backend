@@ -42,7 +42,7 @@ export function normalizeSnapshot(input = {}) {
     preferences: {
       romaji: source.preferences?.romaji !== false,
       dailyGoal: [5, 10, 15].includes(source.preferences?.dailyGoal) ? source.preferences.dailyGoal : 5,
-      theme: ["dojo", "arcade", "heisei"].includes(source.preferences?.theme) ? source.preferences.theme : "dojo",
+      theme: ["dojo", "arcade"].includes(source.preferences?.theme) ? source.preferences.theme : "dojo",
       soundEffects: source.preferences?.soundEffects !== false,
       audioRate: [0.75, 1, 1.15].includes(source.preferences?.audioRate) ? source.preferences.audioRate : 1
     }
