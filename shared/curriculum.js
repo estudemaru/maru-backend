@@ -8,7 +8,7 @@ export const MODULES = [
   { id: "start", number: "01", title: "Primeiros passos", subtitle: "Conheça o idioma e diga seu primeiro olá.", symbol: "始", color: "peach", lessons: [...foundationLessons, ...additionalLessons.start] },
   { id: "hiragana", number: "02", title: "Aprenda hiragana", subtitle: "Transforme novos símbolos em sons conhecidos.", symbol: "あ", color: "sage", lessons: [...hiraganaLessons, ...additionalLessons.hiragana] },
   { id: "katakana", number: "03", title: "Explore katakana", subtitle: "Leia nomes, empréstimos e palavras do mundo.", symbol: "ア", color: "lavender", lessons: [...katakanaLessons, ...additionalLessons.katakana] },
-  { id: "kanji", number: "04", title: "Seus primeiros kanji", subtitle: "Entenda os significados, um traço de cada vez.", symbol: "日", color: "sand", lessons: [...kanjiLessons, ...additionalLessons.kanji] },
+  { id: "kanji", number: "04", title: "Seus primeiros kanji", subtitle: "Entenda os significados, um traço de cada vez.", symbol: "日", color: "sand", lessons: [...kanjiLessons, ...additionalLessons.kanji], recommendedAfter: ["hiragana", "katakana"] },
   { id: "sentences", number: "05", title: "Construa frases", subtitle: "Apresente-se, faça perguntas e conte sua rotina.", symbol: "文", color: "sky", lessons: [...sentenceLessons, ...additionalLessons.sentences] },
   { id: "particles", number: "06", title: "Conecte com partículas", subtitle: "Descubra o papel de cada palavra na frase.", symbol: "は", color: "peach", lessons: [...particleLessons, ...additionalLessons.particles] },
   { id: "everyday", number: "07", title: "Japonês no dia a dia", subtitle: "Peça um café, encontre lugares e converse.", symbol: "話", color: "sage", lessons: [...everydayLessons, ...additionalLessons.everyday] },
