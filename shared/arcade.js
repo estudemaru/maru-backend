@@ -7,7 +7,9 @@ export const GAMES = [
   { id: 'sentences', title: 'Uma frase de cada vez', subtitle: 'Transcrição em japonês', description: 'Observe a frase em kana ou kanji e transcreva, no seu ritmo.', image: 'book', color: 'blue' },
   { id: 'pictures', title: 'Olhou, escreveu', subtitle: 'Vocabulário por imagens', description: 'Só a imagem. Você encontra a palavra em japonês.', image: 'apple', color: 'peach' },
   { id: 'difference', title: 'Parecidos, mas diferentes', subtitle: 'Reconhecimento de kana', description: 'シ ou ツ? Treine seu olhar para os pequenos detalhes.', image: 'cat', color: 'lilac' },
-  { id: 'translate', title: 'Do japonês para você', subtitle: 'Japonês → português', description: 'Leia em japonês e escreva o significado em português.', image: 'coffee', color: 'yellow' }
+  { id: 'translate', title: 'Do japonês para você', subtitle: 'Japonês → português', description: 'Leia em japonês e escreva o significado em português.', image: 'coffee', color: 'yellow' },
+  // Jogo por turnos contra o Maru: a pontuação é o tamanho da cadeia, não a taxa de acertos.
+  { id: 'shiritori', kind: 'chain', title: 'Palavra puxa palavra', subtitle: 'Shiritori · しりとり', description: 'Encadeie palavras com o Maru: cada uma começa com o último som da anterior. Terminou em ん? Perdeu!', image: 'train', color: 'sage' }
 ];
 export const SCRIPTS = [['hiragana', 'Hiragana'], ['katakana', 'Katakana'], ['kanji', 'Kanji'], ['kana', 'Kana · hira + kata'], ['all', 'Tudo']];
 const kanji = /[一-龯々]/u;
@@ -46,6 +48,8 @@ export function buildPool({ game = 'sentences', script = 'all' } = {}) {
     const kana = KANA.find(item => item.char === char);
     return { id: `${index}-${char}`, label: `${char} · ${kana.romaji}`, prompt: kana.romaji, answers: [char], choices: [...chars], category, hint, language: 'ja' };
   }));
+  // No shiritori, só as palavras do vocabulário do Maru entram na revisão.
+  if (game === 'shiritori') return VOCABULARY.filter(word => ['people', 'food', 'places', 'things', 'time'].includes(word.group)).map(word => ({ id: word.id, label: `${word.jp} · ${word.pt}`, answers: [word.reading], language: 'ja' }));
   if (!['sentences','translate'].includes(game)) return [];
   return SENTENCES.map(sentence => {
     const jp = sentence.tokens.map(token => token[0]).join('');
