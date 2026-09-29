@@ -44,15 +44,16 @@ export function createMaruHandler({ repository, auth, speech }) {
     try {
       if (pathname === "/api/health" && request.method === "GET") return json(200, { ok: true, name: "maru", version: 2 });
       if (pathname === "/api/content" && request.method === "GET") return json(200, CONTENT);
-      if (pathname === "/api/auth/google" && request.method === "GET") {
+      const oauthRoute = pathname.match(/^\/api\/auth\/(google|discord)(\/callback)?$/);
+      if (oauthRoute && !oauthRoute[2] && request.method === "GET") {
         try {
-          const login = await auth.begin();
+          const login = await auth.begin(oauthRoute[1], request);
           return redirect(login.url, login.cookies);
         } catch {
           return redirect("/#/settings/login-unavailable");
         }
       }
-      if (pathname === "/api/auth/google/callback" && request.method === "GET") {
+      if (oauthRoute?.[2] && request.method === "GET") {
         try {
           const login = await auth.callback(request, url.searchParams);
           return redirect("/#/settings/login-success", login.cookies);
@@ -92,7 +93,8 @@ export function createMaruHandler({ repository, auth, speech }) {
       const session = await auth.session(request);
       cookies = session.cookies;
       if (pathname === "/api/account" && request.method === "GET") {
-        return json(200, { user: session.user, googleEnabled: auth.googleEnabled, emailEnabled: auth.emailEnabled }, cookies);
+        const capabilities = auth.capabilities ? await auth.capabilities() : { googleEnabled: auth.googleEnabled, discordEnabled: auth.discordEnabled, emailEnabled: auth.emailEnabled };
+        return json(200, { user: session.user, ...capabilities }, cookies);
       }
       if (pathname === "/api/auth/email/password" && request.method === "POST") {
         return json(200, await auth.changePassword(request, session.access, await readJson(request)), cookies);
@@ -141,8 +143,10 @@ function environment() {
     SUPABASE_URL: get("SUPABASE_URL"),
     SUPABASE_ANON_KEY: defaultKey(get("SUPABASE_PUBLISHABLE_KEYS"), get("SUPABASE_ANON_KEY")),
     SUPABASE_SERVICE_ROLE_KEY: defaultKey(get("SUPABASE_SECRET_KEYS"), get("SUPABASE_SERVICE_ROLE_KEY")),
-    MARU_PUBLIC_ORIGIN: get("MARU_PUBLIC_ORIGIN") || "https://maru-frontend.vercel.app",
+    MARU_PUBLIC_ORIGIN: get("MARU_PUBLIC_ORIGIN") || "https://estudemaru.com.br",
+    MARU_ALLOWED_ORIGINS: get("MARU_ALLOWED_ORIGINS") || "https://estudemaru.com.br,https://www.estudemaru.com.br,https://maru-frontend-murex.vercel.app",
     MARU_GOOGLE_ENABLED: get("MARU_GOOGLE_ENABLED"),
+    MARU_DISCORD_ENABLED: get("MARU_DISCORD_ENABLED"),
     TTS_QUEST_API_KEY: get("TTS_QUEST_API_KEY")
   };
 }
@@ -153,7 +157,9 @@ if (typeof Deno !== "undefined") {
     repository: createProgressRepository({ url: env.SUPABASE_URL, serviceKey: env.SUPABASE_SERVICE_ROLE_KEY }),
     auth: createAuth({
       supabaseUrl: env.SUPABASE_URL, anonKey: env.SUPABASE_ANON_KEY,
-      publicOrigin: env.MARU_PUBLIC_ORIGIN, googleEnabled: env.MARU_GOOGLE_ENABLED === "true"
+      publicOrigin: env.MARU_PUBLIC_ORIGIN,
+      allowedOrigins: env.MARU_ALLOWED_ORIGINS.split(",").map(origin => origin.trim()).filter(Boolean),
+      googleEnabled: env.MARU_GOOGLE_ENABLED === "true", discordEnabled: env.MARU_DISCORD_ENABLED === "true"
     }),
     speech: createSpeechService({ key: env.TTS_QUEST_API_KEY })
   });

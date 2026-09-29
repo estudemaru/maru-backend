@@ -29,18 +29,39 @@ function clearCookies(secure) {
   return [cookie("maru_access", "", 0, secure), cookie("maru_refresh", "", 0, secure)];
 }
 
-export function createAuth({ supabaseUrl, anonKey, publicOrigin, googleEnabled = false, fetchImpl = fetch }) {
+export function createAuth({ supabaseUrl, anonKey, publicOrigin, allowedOrigins = [], googleEnabled = false, discordEnabled = false, fetchImpl = fetch, now = Date.now }) {
   if (!supabaseUrl || !anonKey || !publicOrigin) throw new Error("Configuração do Supabase Auth incompleta.");
   const site = new URL(publicOrigin);
   if (site.origin !== publicOrigin || (site.protocol !== "https:" && !["localhost", "127.0.0.1"].includes(site.hostname))) {
     throw new Error("MARU_PUBLIC_ORIGIN deve ser uma origem HTTPS ou localhost.");
   }
   const secure = site.protocol === "https:";
+  const origins = new Set([site.origin]);
+  for (const value of allowedOrigins) {
+    const origin = new URL(value);
+    if (origin.origin !== value || (origin.protocol !== "https:" && !["localhost", "127.0.0.1"].includes(origin.hostname))) {
+      throw new Error("MARU_ALLOWED_ORIGINS deve conter somente origens HTTPS ou localhost.");
+    }
+    origins.add(origin.origin);
+  }
   const authUrl = new URL("/auth/v1/", supabaseUrl);
+  let settings, settingsExpireAt = 0, settingsRequest;
 
-  async function authRequest(path, { method = "GET", body, token } = {}) {
+  // Only explicit trusted origins may receive an OAuth or e-mail callback.
+  // Vercel proxies the request URL, so a same-origin Referer identifies the
+  // browser's public domain without trusting an arbitrary forwarded host.
+  function originFor(request) {
+    if (!request) return site.origin;
+    for (const value of [request.headers.get("origin"), request.headers.get("referer"), request.url]) {
+      try { const origin = new URL(value).origin; if (origins.has(origin)) return origin; } catch {}
+    }
+    return site.origin;
+  }
+
+  async function authRequest(path, { method = "GET", body, token, timeout = 10000 } = {}) {
     const response = await fetchImpl(new URL(path, authUrl), {
       method,
+      signal: AbortSignal.timeout(timeout),
       headers: {
         apikey: anonKey,
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -49,6 +70,23 @@ export function createAuth({ supabaseUrl, anonKey, publicOrigin, googleEnabled =
       ...(body ? { body: JSON.stringify(body) } : {})
     });
     return { response, data: await response.json().catch(() => ({})) };
+  }
+
+  async function capabilities() {
+    if (settings && now() < settingsExpireAt) return settings;
+    if (!settingsRequest) settingsRequest = (async () => {
+      try {
+        const { response, data } = await authRequest("settings", { timeout: 2500 });
+        if (!response.ok || !data.external || typeof data.external !== "object") throw new Error("Auth settings unavailable");
+        settings = { googleEnabled: data.external.google === true, discordEnabled: data.external.discord === true, emailEnabled: data.external.email !== false };
+        settingsExpireAt = now() + 300000;
+      } catch {
+        settings ||= { googleEnabled: Boolean(googleEnabled), discordEnabled: Boolean(discordEnabled), emailEnabled: true };
+        settingsExpireAt = now() + 15000;
+      } finally { settingsRequest = null; }
+      return settings;
+    })();
+    return settingsRequest;
   }
 
   function accountFrom(user) {
@@ -73,20 +111,24 @@ export function createAuth({ supabaseUrl, anonKey, publicOrigin, googleEnabled =
 
   return {
     googleEnabled: Boolean(googleEnabled),
+    discordEnabled: Boolean(discordEnabled),
     emailEnabled: true,
+    capabilities,
     assertSameOrigin(request) {
       const origin = request.headers.get("origin");
-      if (request.headers.get("sec-fetch-site") === "cross-site" || (origin && origin !== site.origin)) {
+      if (request.headers.get("sec-fetch-site") === "cross-site" || (origin && !origins.has(origin))) {
         throw Object.assign(new Error("Recarregue o Maru antes de continuar."), { status: 403 });
       }
     },
-    async begin() {
-      if (!googleEnabled) throw Object.assign(new Error("O login Google ainda não está configurado."), { status: 503 });
+    async begin(provider = "google", request) {
+      if (!["google", "discord"].includes(provider)) badInput("Provedor de login inválido.");
+      const enabled = await capabilities();
+      if (!enabled[provider + "Enabled"]) throw Object.assign(new Error("Este login ainda não está configurado."), { status: 503 });
       const verifier = base64url(crypto.getRandomValues(new Uint8Array(32)));
       const challenge = base64url(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))));
       const url = new URL("authorize", authUrl);
-      url.searchParams.set("provider", "google");
-      url.searchParams.set("redirect_to", site.origin + "/api/auth/google/callback");
+      url.searchParams.set("provider", provider);
+      url.searchParams.set("redirect_to", originFor(request) + "/api/auth/" + provider + "/callback");
       url.searchParams.set("code_challenge", challenge);
       url.searchParams.set("code_challenge_method", "s256");
       return { url: url.href, cookies: [cookie("maru_oauth", verifier, 600, secure)] };
@@ -106,7 +148,7 @@ export function createAuth({ supabaseUrl, anonKey, publicOrigin, googleEnabled =
     async signUp(request, body) {
       this.assertSameOrigin(request);
       const credentialsBody = credentials(body);
-      const path = "signup?redirect_to=" + encodeURIComponent(site.origin);
+      const path = "signup?redirect_to=" + encodeURIComponent(originFor(request));
       const { response, data } = await authRequest(path, { method: "POST", body: credentialsBody });
       if (!response.ok) authError(response.status === 429 ? "Muitas tentativas. Aguarde e tente novamente." : "Não foi possível criar a conta agora. Tente novamente mais tarde.", response.status === 429 ? 429 : 400);
       // Support both Supabase policies without silently discarding a new session.
@@ -127,7 +169,7 @@ export function createAuth({ supabaseUrl, anonKey, publicOrigin, googleEnabled =
       this.assertSameOrigin(request);
       const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
       if (!EMAIL.test(email) || email.length > 254) badInput("Informe um e-mail válido.");
-      const path = "recover?redirect_to=" + encodeURIComponent(site.origin);
+      const path = "recover?redirect_to=" + encodeURIComponent(originFor(request));
       const { response } = await authRequest(path, { method: "POST", body: { email } });
       if (!response.ok) authError(response.status === 429 ? "Muitas tentativas. Aguarde antes de solicitar outro link." : "Não foi possível enviar o link agora. Tente novamente mais tarde.", response.status === 429 ? 429 : 503);
       return { message: "Se houver uma conta nesse endereço, enviaremos um link para redefinir a senha." };
