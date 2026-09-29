@@ -8,7 +8,17 @@ entrypoint = "./functions/maru-api/bundle.js"
 [auth]
 enabled = true
 site_url = "https://estudemaru.com.br"
-additional_redirect_urls = ["https://estudemaru.com.br", "https://www.estudemaru.com.br", "https://maru-frontend-murex.vercel.app"]
+additional_redirect_urls = [
+  "https://estudemaru.com.br",
+  "https://estudemaru.com.br/api/auth/google/callback",
+  "https://estudemaru.com.br/api/auth/discord/callback",
+  "https://www.estudemaru.com.br",
+  "https://www.estudemaru.com.br/api/auth/google/callback",
+  "https://www.estudemaru.com.br/api/auth/discord/callback",
+  "https://maru-frontend-murex.vercel.app",
+  "https://maru-frontend-murex.vercel.app/api/auth/google/callback",
+  "https://maru-frontend-murex.vercel.app/api/auth/discord/callback"
+]
 enable_signup = true
 minimum_password_length = 8
 
