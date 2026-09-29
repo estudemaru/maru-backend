@@ -1,3 +1,9 @@
+> Domínio atualizado em 29/09/2026: `https://estudemaru.com.br`. Os endereços
+> abaixo descrevem a configuração anterior. A aplicação remota continua pendente;
+> usar o novo domínio em Site URL, Redirect URLs e `MARU_PUBLIC_ORIGIN` quando o
+> DNS estiver ativo. O endereço Vercel real é `maru-frontend-murex.vercel.app`.
+> Os valores locais desejados estão em `supabase/config.toml`.
+
 # Supabase: API, Auth e progresso
 
 O endereço previsto para o site é `https://maru-frontend.vercel.app` na Vercel.
@@ -89,3 +95,24 @@ configure backups e retenção no próprio projeto Supabase.
 Confira `/api/health`, uma lição sem conta, a gravação de progresso e, se ativo,
 login/logout. Falhas da função devem ser investigadas nos logs do Supabase sem
 registrar cookies, tokens ou conteúdo privado do usuário.
+
+## Atualização Arcade · 29/09/2026
+
+A aplicação remota está pendente por solicitação da responsável. O CLI instalado
+não tinha sessão nesta máquina. Nenhum deploy, mudança de Auth, SMTP ou banco
+foi executado nesta alteração.
+
+A política desejada de e-mail está declarada em `supabase/config.toml`, mantendo
+confirmação obrigatória e senha mínima de 8 caracteres. Depois de autenticar o
+CLI, conferir o projeto e configurar SMTP no painel, aplique a política de Auth
+e publique o novo bundle em conjunto com o frontend. O novo campo `arcade` dos
+snapshots guarda recordes pessoais; normalização e mesclagem do backend precisam
+ser atualizadas antes de validar sincronização entre dispositivos. Não exige
+alteração de tabelas.
+
+O cadastro aceita tanto a resposta de confirmação pendente quanto a sessão
+imediata retornada pelo Supabase. Recuperação não informa envio bem-sucedido
+quando o serviço de e-mail falha ou limita requisições.
+
+Referências oficiais: [autenticação por senha](https://supabase.com/docs/guides/auth/passwords)
+e [SMTP próprio](https://supabase.com/docs/guides/auth/auth-smtp).
