@@ -9,6 +9,10 @@ const record = value => value && typeof value === "object" && !Array.isArray(val
 const count = value => Math.min(1e9, Math.max(0, Math.floor(Number(value) || 0)));
 const dateValue = value => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
 const mapRecords = (value, transform) => Object.fromEntries(Object.entries(record(value)).filter(([key]) => !["__proto__", "constructor", "prototype"].includes(key)).slice(0, 10000).map(([key, item]) => [key, transform(record(item))]));
+// Desafio do dia: um registro por data local, com a palavra sorteada, 0–3 passos certos e a conclusão.
+const dailyMap = value => Object.fromEntries(Object.entries(record(value)).filter(([key, item]) => /^\d{4}-\d{2}-\d{2}$/.test(key) && item && typeof item === "object").sort(([a], [b]) => a.localeCompare(b)).slice(-730).map(([key, item]) => [key, { word: typeof record(item).word === "string" ? item.word.slice(0, 80) : "", score: Math.min(3, count(record(item).score)), completedAt: dateValue(record(item).completedAt) }]));
+// O primeiro resultado concluído do dia prevalece; refazer o desafio em outro aparelho não o substitui.
+const firstDaily = (left, right) => !left ? right : !right ? left : !left.completedAt ? right : !right.completedAt ? left : left.completedAt !== right.completedAt ? (left.completedAt < right.completedAt ? left : right) : (left.score >= right.score ? left : right);
 const dayMap = value => Object.fromEntries(Object.entries(record(value)).filter(([key]) => /^\d{4}-\d{2}-\d{2}$/.test(key)).sort(([a], [b]) => a.localeCompare(b)).slice(-730).map(([key, amount]) => [key, count(amount)]));
 
 export function normalizeSnapshot(input = {}) {
@@ -39,6 +43,7 @@ export function normalizeSnapshot(input = {}) {
       acceptedModule: MODULES.some(item => item.id === source.placement?.acceptedModule) ? source.placement.acceptedModule : ""
     },
     restDays: dayMap(source.restDays),
+    daily: dailyMap(source.daily),
     activity: Object.fromEntries(Object.entries(record(source.activity)).filter(([key]) => /^\d{4}-\d{2}-\d{2}$/.test(key)).slice(-730).map(([key, value]) => [key, count(value)])),
     preferences: {
       romaji: source.preferences?.romaji !== false,
@@ -70,6 +75,7 @@ export function mergeSnapshots(local, remote) {
     kanaStats: mergeRecords("kanaStats", "updatedAt"),
     placement: a.placement.updatedAt >= b.placement.updatedAt ? a.placement : b.placement,
     restDays: { ...a.restDays, ...b.restDays },
+    daily: Object.fromEntries([...new Set([...Object.keys(a.daily), ...Object.keys(b.daily)])].map(day => [day, firstDaily(a.daily[day], b.daily[day])])),
     activity: Object.fromEntries([...new Set([...Object.keys(a.activity), ...Object.keys(b.activity)])].map(day => [day, Math.max(a.activity[day] || 0, b.activity[day] || 0)]))
   });
 }
