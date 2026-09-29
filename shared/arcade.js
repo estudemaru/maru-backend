@@ -8,6 +8,8 @@ export const GAMES = [
   { id: 'pictures', title: 'Olhou, escreveu', subtitle: 'Vocabulário por imagens', description: 'Só a imagem. Você encontra a palavra em japonês.', image: 'apple', color: 'peach' },
   { id: 'difference', title: 'Parecidos, mas diferentes', subtitle: 'Reconhecimento de kana', description: 'シ ou ツ? Treine seu olhar para os pequenos detalhes.', image: 'cat', color: 'lilac' },
   { id: 'translate', title: 'Do japonês para você', subtitle: 'Japonês → português', description: 'Leia em japonês e escreva o significado em português.', image: 'coffee', color: 'yellow' },
+  // Escuta: o áudio vem da API de voz; a próxima rodada é preparada durante a atual.
+  { id: 'karuta', kind: 'listen', title: 'Ouviu, pegou', subtitle: 'Karuta · かるた', description: 'O Maru diz uma palavra. Seja rápido e pegue a carta certa na mesa.', image: 'dog', color: 'blue' },
   // Jogo por turnos contra o Maru: a pontuação é o tamanho da cadeia, não a taxa de acertos.
   { id: 'shiritori', kind: 'chain', title: 'Palavra puxa palavra', subtitle: 'Shiritori · しりとり', description: 'Encadeie palavras com o Maru: cada uma começa com o último som da anterior. Terminou em ん? Perdeu!', image: 'train', color: 'sage' }
 ];
@@ -48,6 +50,8 @@ export function buildPool({ game = 'sentences', script = 'all' } = {}) {
     const kana = KANA.find(item => item.char === char);
     return { id: `${index}-${char}`, label: `${char} · ${kana.romaji}`, prompt: kana.romaji, answers: [char], choices: [...chars], category, hint, language: 'ja' };
   }));
+  // Karuta: a carta mostra a palavra em kana ou como se escreve; o áudio sempre usa a forma do catálogo.
+  if (game === 'karuta') return VOCABULARY.map(word => ({ id: word.id, label: `${word.jp} · ${word.pt}`, prompt: '', answers: [word.id], card: script === 'kana' ? word.reading : word.jp, speak: word.jp, reading: word.reading, romaji: word.romaji, pt: word.pt, category: word.group, language: 'ja' }));
   // No shiritori, só as palavras do vocabulário do Maru entram na revisão.
   if (game === 'shiritori') return VOCABULARY.filter(word => ['people', 'food', 'places', 'things', 'time'].includes(word.group)).map(word => ({ id: word.id, label: `${word.jp} · ${word.pt}`, answers: [word.reading], language: 'ja' }));
   if (!['sentences','translate'].includes(game)) return [];
@@ -94,7 +98,7 @@ export function makeDeck(pool, reviews = {}, prefix = '', random = Math.random) 
     const item = bag.pop(); previous = item?.id; return item;
   };
 }
-export const reviewPrefix = config => `arcade:${config.game}:${config.script}:${config.game === 'sentences' ? 'transcribe' : config.game === 'translate' ? 'ja-pt' : 'write'}:`;
+export const reviewPrefix = config => `arcade:${config.game}:${config.script}:${config.game === 'sentences' ? 'transcribe' : config.game === 'translate' ? 'ja-pt' : config.game === 'karuta' ? 'listen' : 'write'}:`;
 export function insights(pool, reviews, prefix) {
   const items = pool.map(item => ({ ...item, ...reviews[prefix + item.id] })).filter(item => item.attempts >= 3).map(item => ({ ...item, accuracy: Math.round(100 * item.correct / item.attempts) }));
   return { strong: items.filter(item => item.accuracy >= 80).sort((a,b) => b.accuracy-a.accuracy).slice(0, 4), weak: items.filter(item => item.accuracy < 80).sort((a,b) => a.accuracy-b.accuracy).slice(0, 4) };
