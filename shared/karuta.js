@@ -10,14 +10,17 @@ const shuffle = (list, random) => { const copy = [...list]; for (let i = copy.le
 
 // A mesa tem a carta lida e cartas que confundem: primeiro as que começam com o
 // mesmo som (o desafio real da karuta), depois as do mesmo tema, depois quaisquer.
+// `sound` (quando existe) iguala cartas que soam igual, como を e お: nunca vão juntas à mesa.
+const heard = item => item.sound || item.reading;
 export function dealRound(target, pool, { size = TABLE_SIZE, random = Math.random } = {}) {
-  const others = shuffle(pool.filter(item => item.id !== target.id && item.card !== target.card && item.reading !== target.reading), random);
-  const sameSound = others.filter(item => startKana(item.reading) === startKana(target.reading)).slice(0, 2);
-  const sameGroup = others.filter(item => item.category === target.category && !sameSound.includes(item)).slice(0, 2);
-  const picked = [...sameSound, ...sameGroup];
+  const others = shuffle(pool.filter(item => item.id !== target.id && item.card !== target.card && heard(item) !== heard(target)), random);
+  const picked = [];
+  const pick = item => { if (!picked.some(card => card.card === item.card || heard(card) === heard(item))) picked.push(item); };
+  others.filter(item => startKana(item.reading) === startKana(target.reading)).slice(0, 2).forEach(pick);
+  others.filter(item => item.category === target.category && !picked.includes(item)).slice(0, 2).forEach(pick);
   for (const item of others) {
     if (picked.length >= size - 1) break;
-    if (!picked.includes(item) && !picked.some(card => card.card === item.card)) picked.push(item);
+    pick(item);
   }
   return { target, cards: shuffle([target, ...picked.slice(0, size - 1)], random) };
 }
