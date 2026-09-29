@@ -113,3 +113,17 @@ test("email account routes validate origin and keep Supabase sessions in HttpOnl
   assert.match(calls.at(-1).url, /recover\?redirect_to=https%3A%2F%2Fmaru\.example/);
   assert.equal((await post("/complete", { refreshToken: "v1." + "r".repeat(37) })).status, 200);
 });
+
+test('signup returns a cookie session when Supabase does not require confirmation', async () => {
+  const auth = createAuth({supabaseUrl:'https://example.supabase.co',anonKey:'public-key',publicOrigin:'https://maru.example',fetchImpl:async()=>Response.json({access_token:'aaa.bbb.ccc',refresh_token:'r'.repeat(40),user:{id:'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',email:'pessoa@example.test'}})});
+  const result=await auth.signUp(new Request('https://maru.example/api/auth/email/signup',{headers:{origin:'https://maru.example'}}),{email:'pessoa@example.test',password:'password123'});
+  assert.equal(result.user.email,'pessoa@example.test');
+  assert.equal(result.cookies.length,2);
+  assert.ok(result.cookies.every(cookie=>cookie.includes('HttpOnly') && cookie.includes('Secure')));
+});
+test('recovery does not falsely claim delivery on SMTP failure or rate limits', async () => {
+  for(const status of [429,500]) {
+    const auth=createAuth({supabaseUrl:'https://example.supabase.co',anonKey:'public-key',publicOrigin:'https://maru.example',fetchImpl:async()=>Response.json({error:'mail failed'},{status})});
+    await assert.rejects(()=>auth.recover(new Request('https://maru.example/api/auth/email/recover',{headers:{origin:'https://maru.example'}}),{email:'pessoa@example.test'}),error=>error.status===(status===429?429:503));
+  }
+});

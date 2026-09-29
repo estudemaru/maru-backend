@@ -107,8 +107,12 @@ export function createAuth({ supabaseUrl, anonKey, publicOrigin, googleEnabled =
       this.assertSameOrigin(request);
       const credentialsBody = credentials(body);
       const path = "signup?redirect_to=" + encodeURIComponent(site.origin);
-      const { response } = await authRequest(path, { method: "POST", body: credentialsBody });
+      const { response, data } = await authRequest(path, { method: "POST", body: credentialsBody });
       if (!response.ok) authError(response.status === 429 ? "Muitas tentativas. Aguarde e tente novamente." : "Não foi possível criar a conta agora. Tente novamente mais tarde.", response.status === 429 ? 429 : 400);
+      // Support both Supabase policies without silently discarding a new session.
+      if (data.access_token && data.refresh_token && accountFrom(data.user)) {
+        return { user: accountFrom(data.user), cookies: sessionCookies(data, secure), message: "Conta criada. Você já pode começar." };
+      }
       return { message: "Se o endereço puder ser cadastrado, você receberá um e-mail para confirmar a conta." };
     },
     async signIn(request, body) {
@@ -124,7 +128,8 @@ export function createAuth({ supabaseUrl, anonKey, publicOrigin, googleEnabled =
       const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
       if (!EMAIL.test(email) || email.length > 254) badInput("Informe um e-mail válido.");
       const path = "recover?redirect_to=" + encodeURIComponent(site.origin);
-      await authRequest(path, { method: "POST", body: { email } });
+      const { response } = await authRequest(path, { method: "POST", body: { email } });
+      if (!response.ok) authError(response.status === 429 ? "Muitas tentativas. Aguarde antes de solicitar outro link." : "Não foi possível enviar o link agora. Tente novamente mais tarde.", response.status === 429 ? 429 : 503);
       return { message: "Se houver uma conta nesse endereço, enviaremos um link para redefinir a senha." };
     },
     async completeLink(request, body) {

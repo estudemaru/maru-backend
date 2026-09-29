@@ -29,6 +29,7 @@ export function normalizeSnapshot(input = {}) {
     stats: { sentencesWritten: count(source.stats?.sentencesWritten), focusSessions: count(source.stats?.focusSessions), writingSessions: count(source.stats?.writingSessions) },
     kanaStats: mapRecords(source.kanaStats, item => ({ attempts: count(item.attempts), wrong: count(item.wrong), streak: count(item.streak), updatedAt: dateValue(item.updatedAt) })),
     lessons: mapRecords(source.lessons, item => ({ completedAt: dateValue(item.completedAt), score: count(item.score) })),
+    arcade: mapRecords(source.arcade, item => ({ score: count(item.score), updatedAt: dateValue(item.updatedAt) })),
     reviews: mapRecords(reviews, item => ({ due: dateValue(item.due), interval: count(item.interval), attempts: count(item.attempts), correct: count(item.correct), streak: count(item.streak), updatedAt: dateValue(item.updatedAt) })),
     placement: {
       version: PLACEMENT_VERSION,
@@ -63,6 +64,7 @@ export function mergeSnapshots(local, remote) {
     xp: { total: Math.max(a.xp.total, b.xp.total) },
     stats: { sentencesWritten: Math.max(a.stats.sentencesWritten, b.stats.sentencesWritten), focusSessions: Math.max(a.stats.focusSessions, b.stats.focusSessions), writingSessions: Math.max(a.stats.writingSessions, b.stats.writingSessions) },
     streak: a.streak.lastDate >= b.streak.lastDate ? a.streak : b.streak,
+    arcade: Object.fromEntries([...new Set([...Object.keys(a.arcade), ...Object.keys(b.arcade)])].map(id => [id, (a.arcade[id]?.score || 0) >= (b.arcade[id]?.score || 0) ? a.arcade[id] : b.arcade[id]])),
     lessons: mergeRecords("lessons", "completedAt"),
     reviews: mergeRecords("reviews", "updatedAt"),
     kanaStats: mergeRecords("kanaStats", "updatedAt"),
