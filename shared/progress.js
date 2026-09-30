@@ -55,6 +55,8 @@ export function normalizeSnapshot(input = {}) {
     preferences: {
       romaji: source.preferences?.romaji !== false,
       kanaInput: source.preferences?.kanaInput !== false,
+      // Letra dos kana e kanji nos jogos (lista em frontend/assets/js/core/jpFont.js).
+      jpFont: ["mincho", "gothic", "maru", "kyokasho", "rounded", "pen"].includes(source.preferences?.jpFont) ? source.preferences.jpFont : "mincho",
       dailyGoal: [5, 10, 15].includes(source.preferences?.dailyGoal) ? source.preferences.dailyGoal : 5,
       theme: ["dojo", "arcade"].includes(source.preferences?.theme) ? source.preferences.theme : "dojo",
       soundEffects: source.preferences?.soundEffects !== false,
