@@ -76,9 +76,98 @@ test("Supabase Auth login uses PKCE and keeps provider tokens in HttpOnly cookie
   }), new URLSearchParams("code=code"));
   assert.ok(callback.cookies.every(value => value.includes("HttpOnly")));
   assert.ok(callback.cookies.every(value => value.includes("Secure")));
-  assert.equal(JSON.parse(requests[0].options.body).code_verifier, verifier);
+  assert.equal(JSON.parse(requests.find(request => request.url.includes("grant_type=pkce")).options.body).code_verifier, verifier);
   const session = await auth.session(new Request("https://maru.example/api/account", { headers: { cookie: "maru_access=aaa.bbb.ccc" } }));
   assert.equal(session.user.email, "pessoa@example.test");
+});
+
+test("Supabase provider settings enable Google and Discord without separate app switches", async () => {
+  let settingsReads = 0, time = 100, available = true;
+  const auth = createAuth({
+    supabaseUrl: "https://example.supabase.co", anonKey: "public-key", publicOrigin: "https://estudemaru.com.br",
+    allowedOrigins: ["https://www.estudemaru.com.br"], now: () => time,
+    fetchImpl: async (input) => {
+      assert.equal(String(input), "https://example.supabase.co/auth/v1/settings");
+      settingsReads++;
+      return Response.json({ external: { google: available, discord: available, email: true } });
+    }
+  });
+  const handler = createMaruHandler({ auth, repository: {}, speech: {} });
+  const account = await handler(new Request("https://example.supabase.co/functions/v1/maru-api/api/account"));
+  assert.deepEqual(await account.json(), { user: null, googleEnabled: true, discordEnabled: true, emailEnabled: true });
+  for (const provider of ["google", "discord"]) {
+    const response = await handler(new Request("https://example.supabase.co/functions/v1/maru-api/api/auth/" + provider, {
+      headers: { referer: "https://www.estudemaru.com.br/" }
+    }));
+    assert.equal(response.status, 303);
+    const url = new URL(response.headers.get("location"));
+    assert.equal(url.origin, "https://example.supabase.co");
+    assert.equal(url.searchParams.get("provider"), provider);
+    assert.equal(url.searchParams.get("redirect_to"), "https://www.estudemaru.com.br/api/auth/" + provider + "/callback");
+    assert.equal(url.searchParams.get("code_challenge_method"), "s256");
+    assert.match(response.headers.get("set-cookie"), /HttpOnly; SameSite=Lax; Max-Age=600; Secure/);
+  }
+  assert.equal(settingsReads, 1);
+  available = false; time += 300001;
+  await assert.rejects(() => auth.begin("discord"), error => error.status === 503);
+  assert.equal(settingsReads, 2);
+  await assert.rejects(() => auth.begin("unknown"), error => error.status === 400);
+});
+
+test("OAuth callbacks clear failed PKCE cookies and exchange Discord sessions on the server", async () => {
+  let exchangedVerifier;
+  const auth = createAuth({
+    supabaseUrl: "https://example.supabase.co", anonKey: "public-key", publicOrigin: "https://estudemaru.com.br",
+    allowedOrigins: ["https://www.estudemaru.com.br"],
+    fetchImpl: async (input, options) => {
+      if (String(input).endsWith("settings")) return Response.json({ external: { discord: true } });
+      exchangedVerifier = JSON.parse(options.body).code_verifier;
+      return Response.json({ access_token: "aaa.bbb.ccc", refresh_token: "r".repeat(40) });
+    }
+  });
+  const handler = createMaruHandler({ auth, repository: {}, speech: {} });
+  const begin = await auth.begin("discord", new Request("https://example.supabase.co/api/auth/discord", { headers: { referer: "https://www.estudemaru.com.br/" } }));
+  const base = new URL(begin.url).searchParams.get("redirect_to");
+  assert.equal(new URL(base).origin, "https://www.estudemaru.com.br");
+  assert.ok(!begin.cookies[0].includes("Domain="));
+  const failure = await handler(new Request(base + "?code=code"));
+  assert.equal(failure.headers.get("location"), "/#/settings/login-failed");
+  assert.match(failure.headers.get("set-cookie"), /maru_oauth=;.*Max-Age=0/);
+  const success = await handler(new Request(base + "?code=code", { headers: { cookie: begin.cookies[0].split(";")[0] } }));
+  assert.equal(success.headers.get("location"), "/#/settings/login-success");
+  assert.match(success.headers.get("set-cookie"), /maru_access=aaa.bbb.ccc;.*HttpOnly/);
+  assert.ok(!success.headers.get("location").includes("token"));
+  assert.equal(exchangedVerifier, begin.cookies[0].split(";")[0].split("=")[1]);
+});
+
+test("disabled Supabase providers override legacy enabled switches, including after an outage", async () => {
+  let time = 100, outage = false;
+  const auth = createAuth({
+    supabaseUrl: "https://example.supabase.co", anonKey: "public-key", publicOrigin: "https://estudemaru.com.br",
+    googleEnabled: true, discordEnabled: true, now: () => time,
+    fetchImpl: async () => {
+      if (outage) throw new Error("offline");
+      return Response.json({ external: { google: false, discord: false, email: true } });
+    }
+  });
+  assert.deepEqual(await auth.capabilities(), { googleEnabled: false, discordEnabled: false, emailEnabled: true });
+  for (const provider of ["google", "discord"]) await assert.rejects(() => auth.begin(provider), error => error.status === 503);
+  time += 300001; outage = true;
+  assert.equal((await auth.capabilities()).discordEnabled, false);
+  await assert.rejects(() => auth.begin("google"), error => error.status === 503);
+});
+
+test("trusted custom domains work while foreign origins cannot write or redirect login", async () => {
+  const auth = createAuth({
+    supabaseUrl: "https://example.supabase.co", anonKey: "public-key", publicOrigin: "https://estudemaru.com.br",
+    allowedOrigins: ["https://www.estudemaru.com.br"],
+    fetchImpl: async () => Response.json({ external: { google: true } })
+  });
+  assert.doesNotThrow(() => auth.assertSameOrigin(new Request("https://example.supabase.co/api", { headers: { origin: "https://www.estudemaru.com.br" } })));
+  assert.throws(() => auth.assertSameOrigin(new Request("https://example.supabase.co/api", { headers: { origin: "https://evil.example" } })), error => error.status === 403);
+  assert.throws(() => auth.assertSameOrigin(new Request("https://example.supabase.co/api", { headers: { origin: "https://estudemaru.com.br", "sec-fetch-site": "cross-site" } })), error => error.status === 403);
+  const login = await auth.begin("google", new Request("https://example.supabase.co/api", { headers: { referer: "https://evil.example/", "x-forwarded-host": "evil.example" } }));
+  assert.equal(new URL(login.url).searchParams.get("redirect_to"), "https://estudemaru.com.br/api/auth/google/callback");
 });
 
 test("email account routes validate origin and keep Supabase sessions in HttpOnly cookies", async () => {
@@ -112,4 +201,18 @@ test("email account routes validate origin and keep Supabase sessions in HttpOnl
   assert.equal((await post("/recover", { email: "pessoa@example.test" })).status, 200);
   assert.match(calls.at(-1).url, /recover\?redirect_to=https%3A%2F%2Fmaru\.example/);
   assert.equal((await post("/complete", { refreshToken: "v1." + "r".repeat(37) })).status, 200);
+});
+
+test('signup returns a cookie session when Supabase does not require confirmation', async () => {
+  const auth = createAuth({supabaseUrl:'https://example.supabase.co',anonKey:'public-key',publicOrigin:'https://maru.example',fetchImpl:async()=>Response.json({access_token:'aaa.bbb.ccc',refresh_token:'r'.repeat(40),user:{id:'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',email:'pessoa@example.test'}})});
+  const result=await auth.signUp(new Request('https://maru.example/api/auth/email/signup',{headers:{origin:'https://maru.example'}}),{email:'pessoa@example.test',password:'password123'});
+  assert.equal(result.user.email,'pessoa@example.test');
+  assert.equal(result.cookies.length,2);
+  assert.ok(result.cookies.every(cookie=>cookie.includes('HttpOnly') && cookie.includes('Secure')));
+});
+test('recovery does not falsely claim delivery on SMTP failure or rate limits', async () => {
+  for(const status of [429,500]) {
+    const auth=createAuth({supabaseUrl:'https://example.supabase.co',anonKey:'public-key',publicOrigin:'https://maru.example',fetchImpl:async()=>Response.json({error:'mail failed'},{status})});
+    await assert.rejects(()=>auth.recover(new Request('https://maru.example/api/auth/email/recover',{headers:{origin:'https://maru.example'}}),{email:'pessoa@example.test'}),error=>error.status===(status===429?429:503));
+  }
 });
