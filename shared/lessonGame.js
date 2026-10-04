@@ -10,6 +10,7 @@ import { toHiragana } from './shiritori.js';
 export const LESSON_GAME_KINDS = { listen: 'Ouviu, pegou', read: 'Leu, achou' };
 const LISTEN_MODULES = new Set(['start', 'hiragana', 'katakana', 'everyday', 'casual']);
 export const LESSON_ROUNDS = 5;
+export const lessonGameKind = lesson => lesson.game || (LISTEN_MODULES.has(lesson.moduleId) ? 'listen' : 'read');
 const TABLE = 4;
 // Sequências como "か　き　く", "は → ば → ぱ" ou "一　二　三" viram uma carta por item.
 const SEQUENCE = /^[ぁ-ゖァ-ヺー一-龯々]+(?:(?:　| → )[ぁ-ゖァ-ヺー一-龯々]+)+$/u;
@@ -34,7 +35,7 @@ export function lessonGame(lesson, { random = Math.random } = {}) {
   const own = cards(lesson);
   // Lições com poucos exemplos completam a mesa com cartas das lições vizinhas da etapa.
   const neighbours = (module?.lessons || []).filter(item => item.id !== lesson.id).flatMap(item => cards({ ...item, moduleId: lesson.moduleId })).filter(card => !own.some(item => item.card === card.card));
-  const kind = lesson.game || (LISTEN_MODULES.has(lesson.moduleId) ? 'listen' : 'read');
+  const kind = lessonGameKind(lesson);
   const order = [...own];
   for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
   const targets = order.slice(0, Math.min(LESSON_ROUNDS, order.length));
