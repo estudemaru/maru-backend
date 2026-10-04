@@ -1,5 +1,6 @@
 node_modules/
 supabase/functions/maru-api/bundle.js
+supabase/.temp/
 .DS_Store
 
 # Persistência local do backend de desenvolvimento.

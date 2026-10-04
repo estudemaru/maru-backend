@@ -44,6 +44,15 @@ test("Supabase repository keeps each owner separate and merges snapshots", async
   assert.ok(remote.calls.some(call => call.method === "PATCH"));
 });
 
+test("Supabase repository keeps the first daily challenge result from each device", async () => {
+  const remote = fakePostgrest();
+  const progress = createProgressRepository({ url: "https://example.supabase.co", serviceKey: "server-secret", fetchImpl: remote.fetchImpl });
+  await progress.write("browser-a", { updatedAt: 10, daily: { "2026-09-29": { word: "word-cat", score: 1, completedAt: 100 } } });
+  const merged = await progress.write("browser-a", { updatedAt: 20, daily: { "2026-09-29": { word: "word-cat", score: 3, completedAt: 200 }, "2026-09-30": { word: "word-dog", score: 2, completedAt: 300 } } });
+  assert.deepEqual(merged.daily["2026-09-29"], { word: "word-cat", score: 1, completedAt: 100 });
+  assert.equal((await progress.read("browser-a")).daily["2026-09-30"].score, 2);
+});
+
 test("Supabase repository retries a conflicting version", async () => {
   const remote = fakePostgrest();
   const progress = createProgressRepository({ url: "https://example.supabase.co", serviceKey: "server-secret", fetchImpl: remote.fetchImpl });
