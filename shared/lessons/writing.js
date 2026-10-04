@@ -1,103 +1,160 @@
 import { example as e, section as s, question as q, lesson as l } from "./helpers.js";
 
 export const foundationLessons = [
-  l("welcome", "Japonês começa aqui", 5, "Reconhecer os três sistemas de escrita e saber por onde começar.", [
-    s("Você pode começar sem saber nada", "Não precisa conhecer um único caractere. Primeiro, entenda como o idioma funciona. Depois, pratique cinco sons por vez. Você vai encontrar a leitura em letras latinas (romaji) como apoio e poderá escondê-la quando se sentir confortável.", [e("こんにちは", "", "konnichiwa", "Olá / boa tarde", "Neste cumprimento, o は final é pronunciado wa.")], "Poucos minutos com atenção já são um começo. A constância conta mais que a pressa."),
-    s("Três escritas, um idioma", "Hiragana registra sons e aparece em palavras e terminações gramaticais. Katakana representa os mesmos sons e é comum em nomes estrangeiros e empréstimos. Kanji são caracteres ligados a significados, com leituras que dependem da palavra.", [e("ねこ", "", "neko", "gato · hiragana"), e("コーヒー", "", "kōhī", "café · katakana"), e("山", "やま", "yama", "montanha · kanji")], "Os três sistemas convivem na mesma frase. Romaji é uma ajuda de leitura, não um quarto sistema japonês."),
-    s("Seu caminho daqui para a frente", "Conheça os sons, aprenda hiragana e katakana e descubra kanji dentro de palavras. Pratique escrita junto com leitura. Aos poucos, use partículas para formar frases e escolha expressões adequadas à situação.", [e("パンを食べます。", "パンをたべます。", "pan o tabemasu", "Como pão.", "パン: katakana; を e べます: hiragana; 食: kanji.")])
+  l("welcome", "Japonês do zero: por onde começar", 5, "Entender como o japonês é escrito e saber qual é o primeiro passo.", [
+    s("Você pode começar sem saber nada", "Tudo bem se o japonês parece um monte de desenhos agora. Todo mundo começou assim.\nAqui você aprende aos pouquinhos: um grupo de letras por vez, sempre com som, exemplo e um joguinho no final.\nEnquanto os caracteres ainda são novidade, a leitura aparece embaixo, em letras do nosso alfabeto. Isso se chama romaji.", [e("こんにちは", "", "konnichiwa", "Olá / Boa tarde", "Seu primeiro japonês! Neste cumprimento, o は do final se lê wa.")], "Cinco minutos por dia valem mais do que duas horas uma vez por mês."),
+    s("Três jeitos de escrever", "O japonês usa três escritas ao mesmo tempo, e cada uma tem um trabalho:\n• Hiragana: as letras do dia a dia. Cada uma vale um som.\n• Katakana: os mesmos sons, com outro desenho. Aparece em palavras que vieram de outras línguas, como café e Brasil.\n• Kanji: desenhos que carregam um significado. O último exemplo abaixo, montanha, é um kanji.", [e("ねこ", "", "neko", "gato · hiragana"), e("コーヒー", "", "kōhī", "café · katakana"), e("山", "やま", "yama", "montanha · kanji")], "O romaji é uma rodinha de bicicleta: ajuda no começo, e depois você tira."),
+    s("O seu caminho na trilha", "Primeiro, os sons. Depois, o hiragana, uma família de letras por vez. Em seguida, o katakana. Só então os primeiros kanji, sempre dentro de palavras.\nCom as letras na mão, você monta frases, conhece as partículas e treina conversas do dia a dia.", [e("パンを食べます。", "パンをたべます。", "pan o tabemasu", "Eu como pão.", "パン está em katakana, を e べます em hiragana, e 食 é um kanji. As três escritas numa frase só!")])
   ], [
-    q("Qual escrita você aprende primeiro na trilha?", ["Hiragana", "Todos os kanji", "Só romaji"], 0, "Hiragana apresenta os sons básicos e ajuda a ler as próximas lições."),
-    q("Onde é comum encontrar katakana?", ["Só em verbos", "Em empréstimos como コーヒー", "Em traduções para português"], 1, "コーヒー (café) é um empréstimo escrito em katakana."),
-    q("O que é romaji?", ["Outro nome para kanji", "A única escrita do Japão", "Japonês representado em letras latinas"], 2, "Romaji permite acompanhar a leitura enquanto você aprende os caracteres.")
-  ]),
-  l("how-it-works", "Como as palavras se encaixam", 6, "Perceber a ordem das palavras em japonês e como as partículas se colam a elas.", [
-    s("O verbo fecha a frase", "Em português, “bebo água” começa pela ação. Em japonês, a ordem muda: primeiro vem aquilo de que se fala, depois vem a ação, no final. 水を飲みます não é “bebo água” palavra por palavra: é “água + を + bebo”, com o verbo por último. Quase toda frase simples segue esse mesmo formato.", [e("水を飲みます。", "みずをのみます。", "mizu o nomimasu", "Bebo água.", "水 (água) vem primeiro; 飲みます (beber) fecha a frase."), e("パンを食べます。", "パンをたべます。", "pan o tabemasu", "Como pão.", "Mesmo formato: パン (pão) primeiro, 食べます (comer) por último.")], "Não tente montar a frase japonesa na mesma ordem do português. Encontre primeiro o verbo, no final, e depois monte o resto para trás."),
-    s("Uma partícula é uma etiqueta colada", "Depois de cada palavra importante, uma partícula pequena se cola a ela e avisa qual é o seu papel na frase: se é do que se fala, o que sofre a ação, ou onde ela acontece. Em vez de decorar uma tradução fixa para cada partícula, pense nela como uma etiqueta: を cola no que é atingido pela ação; は cola no assunto da frase.", [e("わたしは学生です。", "わたしはがくせいです。", "watashi wa gakusei desu", "Eu sou estudante.", "わたし (eu) + は (etiqueta de assunto) + 学生です (sou estudante)."), e("水を飲みます。", "みずをのみます。", "mizu o nomimasu", "Bebo água.", "水 (água) + を (etiqueta de objeto) + 飲みます (bebo).")]),
-    s("Frases maiores são só mais blocos", "Uma frase mais longa não é mais difícil de montar: é a mesma ideia, com mais blocos de “palavra + etiqueta” enfileirados antes do verbo. 図書館で本を読みます tem dois desses blocos: o lugar da ação e o objeto lido, e só depois vem o verbo.", [e("図書館で本を読みます。", "としょかんでほんをよみます。", "toshokan de hon o yomimasu", "Leio um livro na biblioteca.", "図書館で (lugar da ação) + 本を (o que é lido) + 読みます (leio).")], "Quando uma frase parecer grande demais, procure primeiro o verbo no final e depois separe o resto em blocos de palavra + partícula.")
+    q("Por qual escrita a trilha começa?", ["Hiragana", "Todos os kanji de uma vez", "Só romaji"], 0, "O hiragana mostra os sons básicos do japonês. Com ele, todo o resto fica mais fácil."),
+    q("Onde é comum encontrar katakana?", ["Só em verbos", "Em palavras de outras línguas, como コーヒー (café)", "Nas traduções para o português"], 1, "コーヒー veio de outra língua, por isso é escrita em katakana."),
+    q("O que é romaji?", ["Um tipo de kanji", "A escrita oficial do Japão", "Japonês escrito com as letras do nosso alfabeto"], 2, "Romaji é a leitura em letras latinas. Ajuda no começo, mas a meta é ler sem ele.")
+  ], null, {
+    hook: "Você não precisa saber nada. Em cinco minutos, o japonês deixa de parecer um muro de desenhos.",
+    recap: ["O japonês mistura três escritas: hiragana, katakana e kanji.", "Hiragana e katakana representam sons; kanji carregam significados.", "A trilha começa pelos sons e pelo hiragana."]
+  }),
+  l("how-it-works", "Como uma frase japonesa se monta", 6, "Perceber que o verbo vem no final e que palavrinhas mostram o papel de cada parte da frase.", [
+    s("O verbo fica no final", "Em português dizemos “bebo água”. Em japonês, a ordem é outra: primeiro vem a água, e a ação fica por último.\nAo pé da letra, みずをのみます é “água + bebo”.\nQuase toda frase simples segue esse formato.", [e("水を飲みます。", "みずをのみます。", "mizu o nomimasu", "Bebo água.", "水 (água) vem primeiro; 飲みます (bebo) fecha a frase."), e("パンを食べます。", "パンをたべます。", "pan o tabemasu", "Como pão.", "Mesmo formato: パン (pão) primeiro, 食べます (como) por último.")], "Não monte a frase na ordem do português. Ache o verbo no final e leia o resto de trás para a frente."),
+    s("Partículas são etiquetas", "Depois de cada palavra importante vem uma palavrinha que mostra qual é o papel dela na frase. Ela se chama partícula.\nPense numa etiqueta colada: を marca a coisa que recebe a ação, como a água que eu bebo. は marca o assunto da frase, como um “falando de mim…”.", [e("わたしは学生です。", "わたしはがくせいです。", "watashi wa gakusei desu", "Eu sou estudante.", "わたし (eu) + は (assunto) + 学生です (sou estudante)."), e("本を読みます。", "ほんをよみます。", "hon o yomimasu", "Leio um livro.", "本 (livro) + を (o que é lido) + 読みます (leio).")]),
+    s("Frase longa é só mais vagão", "Imagine um trem: os vagões vêm na frente e a locomotiva, o verbo, fica no fim.\nUma frase maior não é mais difícil. É a mesma ideia, com mais vagões de “palavra + partícula” antes do verbo.", [e("図書館で本を読みます。", "としょかんでほんをよみます。", "toshokan de hon o yomimasu", "Leio um livro na biblioteca.", "図書館で (onde) + 本を (o quê) + 読みます (leio).")], "Frase grande? Ache o verbo no final e separe o resto em blocos.")
   ], [
-    q("Em 水を飲みます, onde fica o verbo?", ["No início da frase", "Antes da palavra água", "No final da frase"], 2, "水 (água) vem primeiro; 飲みます (beber) fecha a frase, como na maioria das frases simples."),
-    q("O que faz uma partícula como を ou は?", ["Muda o sentido do verbo", "Cola-se à palavra anterior e mostra seu papel na frase", "Substitui o verbo por completo"], 1, "A partícula funciona como uma etiqueta colada depois da palavra: mostra se ela é o assunto, o objeto, o lugar, e assim por diante."),
-    q("Uma frase mais longa como 図書館で本を読みます é formada por…", ["Uma tradução direta, palavra por palavra, do português", "Blocos de palavra + partícula enfileirados antes do verbo", "Apenas kanji, sem partículas"], 1, "図書館で e 本を são dois blocos que se encaixam um atrás do outro, antes do verbo 読みます.")
-  ]),
-  l("sounds", "Ouça o ritmo do japonês", 5, "Identificar as cinco vogais e perceber que a duração dos sons importa.", [
-    s("Cinco vogais para começar", "A sequência japonesa é a, i, u, e, o. As vogais costumam ser curtas e estáveis. O u japonês tem os lábios menos arredondados que o u português. Use o áudio como apoio e repita sem acrescentar sons. Depois tente reconhecer cada vogal sem olhar o romaji.", [e("あ　い　う　え　お", "", "a · i · u · e · o", "As cinco vogais")]),
-    s("Dê tempo a cada unidade", "O japonês organiza o ritmo em unidades chamadas moras. Um kana simples costuma ocupar uma mora. O ん, o pequeno っ e o prolongamento de uma vogal também ocupam tempo. Em きゃ, os dois sinais formam uma única mora.", [e("おばさん", "", "obasan", "tia / mulher de meia-idade"), e("おばあさん", "", "obāsan", "avó / mulher idosa")], "Vogais longas mudam palavras. A barrinha em ā, ī, ū, ē, ō sinaliza uma vogal prolongada."),
-    s("Apoio para a pronúncia", "Shi, chi e tsu representam し, ち e つ. O r de ra, ri, ru, re, ro é breve, próximo ao toque da língua em “caro”. Não acrescente uma vogal depois de ん.", [e("すし", "", "sushi", "sushi"), e("さくら", "", "sakura", "cerejeira")])
+    q("Em 水を飲みます, onde fica o verbo?", ["No começo da frase", "Antes da palavra água", "No final da frase"], 2, "水 (água) vem primeiro; 飲みます (bebo) fecha a frase, como na maioria das frases simples."),
+    q("O que faz uma partícula como を ou は?", ["Muda o sentido do verbo", "Cola na palavra anterior e mostra o papel dela", "Substitui o verbo"], 1, "A partícula é uma etiqueta colada depois da palavra: mostra se ela é o assunto, o objeto, o lugar…"),
+    q("Uma frase longa como 図書館で本を読みます é feita de…", ["Blocos de palavra + partícula antes do verbo", "Uma tradução palavra por palavra do português", "Só kanji, sem partículas"], 0, "図書館で e 本を são dois blocos, um atrás do outro, antes do verbo 読みます.")
+  ], null, {
+    hook: "Uma frase japonesa é como um trem: os vagões vêm primeiro e a locomotiva, o verbo, fica no fim.",
+    recap: ["O verbo fica no final da frase.", "Partículas são etiquetas que mostram o papel de cada palavra.", "Frase longa é só mais blocos antes do verbo."]
+  }),
+  l("sounds", "Os sons do japonês", 5, "Conhecer as cinco vogais e perceber que, em japonês, a duração do som muda a palavra.", [
+    s("Só cinco vogais", "O japonês tem só cinco vogais, sempre nesta ordem: a, i, u, e, o.\nElas são curtas e não mudam: o a é sempre a, nunca vira ã. O u sai com os lábios quase sem arredondar.\nToque no alto-falante, ouça e repita em voz alta.", [e("あ　い　う　え　お", "", "a · i · u · e · o", "As cinco vogais, na ordem da tabela")]),
+    s("Cada som tem o seu tempo", "Imagine que cada sílaba japonesa ocupa uma batida de palma. Essa batida se chama mora.\nUma vogal esticada ganha uma batida a mais, e isso muda a palavra! おばさん é tia; おばあさん, com o あ esticado, é avó.\nNo romaji, a vogal esticada aparece com um tracinho em cima: ā, ī, ū, ē, ō.", [e("おばさん", "", "obasan", "tia"), e("おばあさん", "", "obāsan", "avó")], "Bata palmas: o-ba-sa-n são quatro batidas; o-ba-a-sa-n são cinco."),
+    s("Três sons para prestar atenção", "し se lê shi, como o xi de “xícara”. ち se lê chi, quase “tchi”. つ se lê tsu, como em “tsunami”, que é uma palavra japonesa!\nO r japonês é sempre fraquinho, como o r de “caro”, mesmo no começo da palavra.", [e("すし", "", "sushi", "sushi"), e("さくら", "", "sakura", "cerejeira"), e("つなみ", "", "tsunami", "tsunami")])
   ], [
-    q("Qual é a ordem das cinco vogais?", ["a, e, i, o, u", "a, i, u, e, o", "i, a, o, e, u"], 1, "A tabela japonesa usa a ordem a, i, u, e, o."),
-    q("Uma vogal longa pode mudar o significado?", ["Sim", "Nunca", "Só no português"], 0, "おばさん e おばあさん são palavras diferentes."),
-    q("Como ler し?", ["si com som de ci em cidade", "ri", "shi"], 2, "Na romanização usada aqui, し é shi.")
-  ], { route: "kana", label: "Conhecer as cinco vogais" }),
-  l("greetings", "Seu primeiro olá", 5, "Cumprimentar, agradecer e chamar a atenção de alguém com educação.", [
-    s("Uma expressão para cada momento", "Comece pelas formas educadas. おはようございます é usado pela manhã; こんにちは, durante o dia; こんばんは, à noite.", [e("おはようございます。", "", "ohayō gozaimasu", "Bom dia."), e("こんにちは。", "", "konnichiwa", "Olá / boa tarde."), e("こんばんは。", "", "konbanwa", "Boa noite (ao chegar).")]),
-    s("Duas expressões que abrem portas", "ありがとうございます agradece com educação. すみません serve para pedir licença, chamar alguém ou se desculpar, dependendo do contexto.", [e("ありがとうございます。", "", "arigatō gozaimasu", "Muito obrigado(a)."), e("すみません。", "", "sumimasen", "Com licença / desculpe.")], "Para se despedir antes de dormir, use おやすみなさい (oyasuminasai), não こんばんは."),
-    s("Comece pequeno", "Leia cada expressão, ouça e repita. Você não precisa analisar toda a gramática agora. Procure relacionar o som a uma situação real.")
+    q("Qual é a ordem das vogais japonesas?", ["a, e, i, o, u", "a, i, u, e, o", "i, a, o, e, u"], 1, "A tabela japonesa sempre segue a, i, u, e, o."),
+    q("O que muda entre おばさん e おばあさん?", ["Nada, é a mesma palavra", "Só a letra do romaji", "A duração do som e o significado"], 2, "O あ a mais estica a vogal: おばさん é tia e おばあさん é avó."),
+    q("Como se lê し?", ["shi, como o xi de “xícara”", "ri", "si, como em “cidade”"], 0, "し é shi. Pense no começo de “xícara”.")
+  ], { route: "kana", label: "Ouvir as cinco vogais" }, {
+    hook: "Boa notícia: o japonês tem poucos sons, e quase todos já existem no português.",
+    recap: ["São só cinco vogais: a, i, u, e, o.", "Esticar uma vogal muda a palavra: おばさん (tia) e おばあさん (avó).", "し é shi, ち é chi, つ é tsu, e o r é sempre fraquinho."]
+  }),
+  l("greetings", "Seu primeiro olá", 5, "Cumprimentar, agradecer e chamar alguém com educação.", [
+    s("Um olá para cada hora do dia", "De manhã, diga おはようございます. Durante o dia, こんにちは. À noite, ao encontrar alguém, こんばんは.\nNão precisa entender cada pedacinho agora. Pense em cada uma como uma fórmula pronta, igual ao nosso “bom dia”.", [e("おはようございます。", "", "ohayō gozaimasu", "Bom dia."), e("こんにちは。", "", "konnichiwa", "Olá / Boa tarde.", "O は do final se lê wa."), e("こんばんは。", "", "konbanwa", "Boa noite (ao chegar).")]),
+    s("Obrigado e com licença", "ありがとうございます é um “muito obrigado” educado.\nすみません é um curinga: serve para pedir licença, chamar alguém, como um “moço!”, ou pedir desculpas.\nE na hora de dormir o boa-noite muda: おやすみなさい.", [e("ありがとうございます。", "", "arigatō gozaimasu", "Muito obrigado(a)."), e("すみません。", "", "sumimasen", "Com licença / desculpe."), e("おやすみなさい。", "", "oyasuminasai", "Boa noite (antes de dormir).")], "こんばんは é para quem chega; おやすみなさい é para quem vai dormir."),
+    s("Treine em voz alta", "Toque no alto-falante, ouça e repita cada expressão. Depois, tente dizer sem olhar.\nImagine a cena: você entra numa loja à tarde (こんにちは), chama o atendente (すみません) e agradece no fim (ありがとうございます).")
   ], [
-    q("Você vai chamar alguém para pedir informação. Qual expressão ajuda?", ["おやすみなさい", "すみません", "こんばんは"], 1, "すみません pode chamar a atenção de alguém educadamente."),
+    q("Você quer chamar um atendente numa loja. O que dizer?", ["おやすみなさい", "すみません", "こんばんは"], 1, "すみません chama a atenção de alguém com educação, como um “com licença”."),
     q("Como agradecer com educação?", ["ありがとうございます", "こんにちは", "おはようございます"], 0, "ありがとうございます é um agradecimento educado."),
-    q("こんばんは é usado…", ["Ao ir dormir", "Só pela manhã", "Ao cumprimentar alguém à noite"], 2, "Para antes de dormir, use おやすみなさい.")
-  ])
+    q("Quando se usa こんばんは?", ["Na hora de dormir", "Só de manhã", "Ao encontrar alguém à noite"], 2, "こんばんは cumprimenta à noite. Para ir dormir, use おやすみなさい.")
+  ], null, {
+    hook: "Com cinco expressões, você já consegue ser educado em japonês.",
+    recap: ["Manhã: おはようございます. Dia: こんにちは. Noite: こんばんは.", "ありがとうございます agradece; すみません pede licença ou desculpas.", "おやすみなさい é o boa-noite de quem vai dormir."]
+  })
 ];
 
+// As dicas de memória são autorais; servem para fixar a forma, não explicam a origem dos caracteres.
 export const hiraganaLessons = [
-  l("h-vowels", "As primeiras cinco letras", 6, "Reconhecer あ, い, う, え, お e ler palavras pequenas.", [
-    s("Conheça あ・い・う・え・お", "Cada um destes caracteres representa uma vogal. Olhe a forma, diga o som e só então tente lembrar sem olhar. Aprenda o formato manuscrito no caderno de escrita.", [e("あ", "", "a", "Primeira vogal"), e("い", "", "i", "Segunda vogal"), e("う", "", "u", "Terceira vogal"), e("え", "", "e", "Quarta vogal"), e("お", "", "o", "Quinta vogal")]),
-    s("Você já consegue ler", "Junte os sons sem colocar força excessiva em uma sílaba. Leia いえ como i-e, mantendo as duas vogais.", [e("いえ", "", "ie", "casa"), e("うえ", "", "ue", "em cima"), e("あお", "", "ao", "azul")], "あ e お podem parecer próximos. Compare a forma e a ordem dos traços, não apenas a aparência geral.")
+  l("h-vowels", "あいうえお: as cinco vogais", 6, "Ler あ, い, う, え, お e as primeiras palavras.", [
+    s("Conheça as vogais", "Cada letra do hiragana vale um som. Estas cinco são as vogais, e todas as outras famílias se apoiam nelas.\nPara cada uma: olhe a forma, ouça, diga em voz alta e leia a dica de memória.", [
+      e("あ", "", "a", "a, como em “água”", "Uma cruz com um laço enrolado embaixo. Imagine alguém amarrando o laço e dizendo “Ah, pronto!”."),
+      e("い", "", "i", "i, como em “ilha”", "Dois tracinhos em pé, lado a lado, como dois “i” sem pingo."),
+      e("う", "", "u", "u, com os lábios quase sem arredondar", "Um tracinho em cima e uma curva que lembra uma orelha. Mão na orelha: “Uh? Não ouvi!”."),
+      e("え", "", "e", "e, como em “ele”", "Um tracinho e um zigue-zague com a perna esticada, como alguém dançando: “Ê!”."),
+      e("お", "", "o", "o, como em “ovo”", "Parece あ, mas com um tracinho solto no alto, à direita. Esse tracinho é o “olhinho” do お.")
+    ]),
+    s("Você já consegue ler", "Agora junte os sons, sem pressa: い + え = ie. Cada letra ganha a mesma batida, sem engolir nenhuma.\nTente ler antes de olhar o romaji.", [e("いえ", "", "ie", "casa"), e("あい", "", "ai", "amor"), e("うえ", "", "ue", "em cima"), e("あお", "", "ao", "azul")], "あ e お são parecidos. Procure o tracinho solto do お.")
   ], [
-    q("Qual é o som de あ?", ["o", "a", "e"], 1, "あ representa o som da vogal a."),
-    q("Qual caractere representa i?", ["い", "う", "え"], 0, "い representa i."),
-    q("Como se lê いえ?", ["ao", "ue", "ie"], 2, "い = i e え = e. いえ significa casa.")
-  ], { route: "kana", rows: ["a"], label: "Praticar as cinco vogais" }),
-  l("h-rows", "Das fileiras K às fileiras H", 8, "Ler as fileiras ka, sa, ta, na e ha, observando os sons especiais.", [
-    s("Um padrão que se repete", "As fileiras seguem a ordem das vogais. か・き・く・け・こ são ka, ki, ku, ke, ko. Depois vêm sa, ta, na e ha. Não tente memorizar todas de uma vez: selecione uma fileira no treino.", [e("か　き　く　け　こ", "", "ka · ki · ku · ke · ko", "Fileira K"), e("さ　し　す　せ　そ", "", "sa · shi · su · se · so", "Fileira S"), e("た　ち　つ　て　と", "", "ta · chi · tsu · te · to", "Fileira T")]),
-    s("Preste atenção às exceções", "し é shi; ち é chi; つ é tsu; ふ é fu, com um sopro suave pelos lábios. Nas demais posições, o padrão ajuda a lembrar.", [e("な　に　ぬ　ね　の", "", "na · ni · nu · ne · no", "Fileira N"), e("は　ひ　ふ　へ　ほ", "", "ha · hi · fu · he · ho", "Fileira H"), e("ねこ", "", "neko", "gato"), e("くつ", "", "kutsu", "sapatos")])
+    q("Qual é o som de あ?", ["o", "a", "e"], 1, "あ é a. O お é parecido, mas tem um tracinho a mais no alto, à direita."),
+    q("Qual letra é o i?", ["い", "う", "え"], 0, "い são dois tracinhos em pé, como dois “i” sem pingo."),
+    q("Como se lê いえ, que significa casa?", ["ao", "ue", "ie"], 2, "い = i e え = e. いえ é casa.")
+  ], { route: "kana", rows: ["a"], label: "Praticar as cinco vogais" }, {
+    hook: "Cinco letras e você já lê “casa”, “amor” e “azul” em japonês.",
+    recap: ["あ a · い i · う u · え e · お o.", "Cada letra é uma batida: いえ é i-e.", "Já dá para ler いえ (casa), あい (amor) e あお (azul)."]
+  }),
+  l("h-rows", "Revisão: de K até H", 6, "Ler palavras que misturam as famílias K, S, T, N e H.", [
+    s("Todas juntas", "Aqui estão as cinco famílias que você aprendeu, lado a lado.\nLeia cada linha em voz alta, sem olhar o romaji. Se alguma letra travar, volte na lição da família dela.", [e("か　き　く　け　こ", "", "ka · ki · ku · ke · ko", "Família K"), e("さ　し　す　せ　そ", "", "sa · shi · su · se · so", "Família S"), e("た　ち　つ　て　と", "", "ta · chi · tsu · te · to", "Família T"), e("な　に　ぬ　ね　の", "", "na · ni · nu · ne · no", "Família N"), e("は　ひ　ふ　へ　ほ", "", "ha · hi · fu · he · ho", "Família H")]),
+    s("Palavras maiores", "Agora palavras de três ou quatro letras. Leia uma letra por vez e depois a palavra inteira.", [e("さかな", "", "sakana", "peixe"), e("おかし", "", "okashi", "doce, guloseima"), e("あなた", "", "anata", "você"), e("ちいさい", "", "chiisai", "pequeno")], "Travou numa letra? Tudo bem. Volte na família dela e jogue de novo.")
   ], [
-    q("Como se lê ち?", ["ti com som de t", "chi", "shi"], 1, "ち é romanizado como chi aqui."),
-    q("Como se lê ねこ?", ["neko", "nako", "neka"], 0, "ね = ne e こ = ko."),
-    q("Qual caractere é fu?", ["は", "ほ", "ふ"], 2, "ふ representa fu.")
-  ], { route: "kana", rows: ["ka", "sa", "ta", "na", "ha"], label: "Praticar estas fileiras" }),
-  l("h-rest", "Complete os 46 hiragana básicos", 7, "Ler as fileiras restantes e reconhecer o papel de ん e を.", [
-    s("M, Y e R", "ま・み・む・め・も seguem o padrão ma, mi, mu, me, mo. A fileira Y tem apenas や・ゆ・よ. A fileira R tem ら・り・る・れ・ろ.", [e("ま　み　む　め　も", "", "ma · mi · mu · me · mo", "Fileira M"), e("や　ゆ　よ", "", "ya · yu · yo", "Fileira Y"), e("ら　り　る　れ　ろ", "", "ra · ri · ru · re · ro", "Fileira R")]),
-    s("Os últimos três", "わ se lê wa. を aparece principalmente como partícula, pronunciada o, embora muitas tabelas usem wo para identificá-la. ん é uma unidade nasal: seu som se adapta aos sons próximos.", [e("わ　を　ん", "", "wa · o (wo) · n", "Fim da tabela básica"), e("やま", "", "yama", "montanha"), e("ほん", "", "hon", "livro")], "São 46 caracteres básicos. Os sinais com marcas sonoras e as combinações entram depois; não são 71 básicos.")
+    q("Como se lê さかな?", ["sakana", "sakina", "sokana"], 0, "さ + か + な = sakana, peixe."),
+    q("Qual é a ordem da família T?", ["た つ ち て と", "た ち つ て と", "と て つ ち た"], 1, "Ta, chi, tsu, te, to: a mesma ordem das vogais a, i, u, e, o."),
+    q("O que significa あなた?", ["Peixe", "Doce", "Você"], 2, "あなた (anata) é você. Na conversa, os japoneses costumam usar o nome da pessoa em vez de あなた.")
+  ], { route: "kana", rows: ["ka", "sa", "ta", "na", "ha"], label: "Praticar as cinco famílias" }, {
+    hook: "Pausa para respirar: você já sabe 30 letras. Hora de ver isso funcionando em palavras maiores.",
+    recap: ["K, S, T, N e H seguem a ordem a, i, u, e, o.", "Leia letra por letra e depois a palavra inteira.", "さかな (peixe), おかし (doce), あなた (você)."]
+  }),
+  l("h-rest", "わ, を e ん: a tabela completa", 6, "Ler わ, を e ん e fechar os 46 hiragana básicos.", [
+    s("As últimas três", "わ é wa, como “uá”.\nを aparece como wo nas tabelas, mas se lê o. Ela quase só aparece como partícula, aquela etiqueta que marca o objeto da frase.\nん é a única letra que é só consoante: um n nasal, que nunca começa palavra.", [
+      e("わ", "", "wa", "wa, como “uá”", "Parece ね sem o laço, com uma barriga redonda: “Uá, que barriga!”."),
+      e("を", "", "o", "o (a tabela chama de wo)", "Alguém de braços abertos erguendo um peso: “Ô, que pesado!”."),
+      e("ん", "", "n", "n, um som nasal", "Parece um “n” escrito à mão. É só o som de n, sem vogal.")
+    ]),
+    s("Os 46 básicos", "Pronto: são 46 letras básicas. E repare que você não decorou 46 coisas soltas, e sim 10 famílias que seguem a mesma regra.\nAgora leia palavras com as letras novas.", [e("わたし", "", "watashi", "eu"), e("ほん", "", "hon", "livro"), e("みかん", "", "mikan", "tangerina"), e("にほん", "", "Nihon", "Japão")], "Letras com risquinhos, como が, e combinações, como きゃ, vêm a seguir. Elas ampliam a tabela, mas os básicos são 46.")
   ], [
-    q("Quantos hiragana básicos há na tabela moderna?", ["71", "46", "26"], 1, "São 46 básicos; as formas com marcas sonoras ampliam a tabela."),
-    q("Qual a leitura usual da partícula を?", ["o", "wa", "ni"], 0, "を costuma ser pronunciado o."),
-    q("Qual palavra significa montanha?", ["ほん", "ねこ", "やま"], 2, "やま (yama) significa montanha.")
-  ], { route: "kana", rows: ["ma", "ya", "ra", "wa", "n"], label: "Completar o hiragana" }),
-  l("h-combinations", "Marcas, combinações e pequenas pausas", 8, "Distinguir dakuten, handakuten, combinações com ゃゅょ e o pequeno っ.", [
-    s("Pequenas marcas mudam o som", "O dakuten ゛ transforma k em g, s em z, t em d e h em b. O handakuten ゜ transforma h em p. じ e ぢ são normalmente pronunciados ji; ず e づ, zu, mas suas grafias não são intercambiáveis.", [e("か → が", "", "ka → ga", "Dakuten"), e("は → ば → ぱ", "", "ha → ba → pa", "Sem marca → dakuten → handakuten")]),
-    s("Um pequeno や muda tudo", "Junte um kana da coluna i com ゃ, ゅ ou ょ pequenos: きゃ é kya. Com や grande, きや é ki-ya, em duas unidades. O tamanho importa.", [e("きゃ　きゅ　きょ", "", "kya · kyu · kyo", "Sons combinados"), e("しゃしん", "", "shashin", "fotografia")]),
-    s("Pausa e vogais longas", "O pequeno っ prepara uma pausa antes da próxima consoante. Vogais longas em hiragana costumam usar outra vogal; おう e おお podem representar o longo. Memorize a grafia junto com a palavra.", [e("きって", "", "kitte", "selo"), e("がっこう", "", "gakkō", "escola"), e("おおきい", "", "ōkii", "grande")], "No campo de leitura, você também pode escrever gakkou, seguindo a grafia de がっこう.")
+    q("Quantos hiragana básicos existem?", ["71", "46", "26"], 1, "São 46 básicos. As formas com risquinhos e as combinações ampliam a tabela."),
+    q("Como se lê a partícula を?", ["o", "wa", "n"], 0, "を se pronuncia o, mesmo aparecendo como wo nas tabelas."),
+    q("Qual palavra significa Japão?", ["ほん", "みかん", "にほん"], 2, "にほん (Nihon) é Japão. ほん sozinho é livro.")
+  ], { route: "kana", rows: ["wa", "n"], label: "Completar o hiragana" }, {
+    hook: "Mais três letras e pronto: você conhece todo o hiragana básico!",
+    recap: ["わ wa · を o (partícula) · ん n.", "São 46 letras básicas, organizadas em 10 famílias.", "Já dá para ler わたし (eu) e にほん (Japão)."]
+  }),
+  l("h-combinations", "Letrinhas pequenas: きゃ, っ e sons longos", 8, "Ler combinações com ゃゅょ, a pausa do っ e as vogais esticadas.", [
+    s("や, ゆ, よ pequenininhos", "Junte uma letra que termina em i (き, し, ち…) com um ゃ, ゅ ou ょ pequeno, e as duas viram um som só: き + ゃ = kya.\nO tamanho importa: きゃ, com o や pequeno, é kya, uma batida; きや, com o や grande, é ki-ya, duas batidas.", [e("きゃ　きゅ　きょ", "", "kya · kyu · kyo", "Sons combinados"), e("しゃしん", "", "shashin", "foto"), e("おちゃ", "", "ocha", "chá")]),
+    s("っ pequeno: uma pausinha", "O つ pequeno (っ) não tem som próprio. Ele é uma pausinha, como se você segurasse a próxima consoante.\nEm きって, segure o t por um instante: kit-te. Sem a pausa, a palavra muda.", [e("きって", "", "kitte", "selo"), e("がっこう", "", "gakkō", "escola")]),
+    s("Vogais esticadas", "Para esticar uma vogal no hiragana, escreve-se mais uma vogal depois: おかあさん tem o あ esticado.\nNo som do o, o esticado quase sempre aparece como う: がっこう se lê gakkō.\nNo romaji, o esticado ganha um tracinho em cima: ō.", [e("おかあさん", "", "okāsan", "mãe"), e("おおきい", "", "ōkii", "grande"), e("きょう", "", "kyō", "hoje", "きょ é um som combinado, e o う estica o o.")], "Para digitar がっこう num teclado japonês, escreva gakkou.")
   ], [
-    q("Como se lê ぱ?", ["ba", "pa", "ha"], 1, "O pequeno círculo transforma ha em pa."),
-    q("Como se lê きゃ?", ["kya", "kiya", "kaya"], 0, "O ゃ pequeno combina com き para formar kya."),
-    q("Qual leitura corresponde a きって?", ["kite", "kiyote", "kitte"], 2, "O っ marca o tempo de fechamento antes de t.")
-  ], { route: "kana", group: "combined", label: "Praticar sons combinados" })
+    q("Como se lê きゃ?", ["kiya, em duas batidas", "kya, numa batida só", "kaya"], 1, "O ゃ pequeno se junta ao き: kya, um som só."),
+    q("O que o っ pequeno faz em きって?", ["Faz uma pausinha antes do t", "Vira um tsu completo", "Estica a vogal"], 0, "O っ guarda uma batida em silêncio antes da consoante seguinte: kit-te."),
+    q("Como se lê おかあさん?", ["okasan", "okaisan", "okāsan, com o a esticado"], 2, "かあ estica o a: o-ka-a-sa-n, okāsan, mãe.")
+  ], { route: "kana", group: "combined", label: "Praticar as combinações" }, {
+    hook: "Letra pequena, efeito grande: é ela que faz “foto”, “escola” e “selo” soarem certinho.",
+    recap: ["き + ゃ pequeno = kya, um som só.", "っ pequeno é uma pausinha: きって é kit-te.", "Vogal escrita duas vezes é som esticado: おかあさん."]
+  })
 ];
 
 export const katakanaLessons = [
-  l("k-basics", "Os mesmos sons, novas formas", 7, "Entender o uso do katakana e reconhecer suas primeiras fileiras.", [
-    s("Você já conhece os sons", "Katakana tem 46 caracteres básicos e representa essencialmente os mesmos sons do hiragana. Muda a forma. Comece pelas vogais e pela fileira K; avance pela tabela em grupos pequenos.", [e("ア　イ　ウ　エ　オ", "", "a · i · u · e · o", "Vogais em katakana"), e("カ　キ　ク　ケ　コ", "", "ka · ki · ku · ke · ko", "Fileira K")]),
-    s("Palavras que vieram de fora", "Empréstimos são adaptados aos sons do japonês. Não basta pronunciar a palavra como na língua de origem. Katakana também aparece em onomatopeias, nomes científicos e para dar destaque.", [e("カメラ", "", "kamera", "câmera"), e("アイス", "", "aisu", "sorvete / gelo, conforme o contexto"), e("ブラジル", "", "Burajiru", "Brasil")])
+  l("k-basics", "Katakana: os mesmos sons, outro desenho", 7, "Entender para que serve o katakana e ler as vogais e a família K.", [
+    s("Para que serve o katakana", "O katakana tem as mesmas 46 letras básicas e os mesmos sons do hiragana. Muda só o desenho, que é mais reto e cheio de cantos.\nEle aparece em palavras que vieram de outras línguas, em nomes estrangeiros, marcas e onomatopeias.", [e("カメラ", "", "kamera", "câmera"), e("ブラジル", "", "Burajiru", "Brasil")]),
+    s("As vogais", "Compare cada uma com o hiragana que você já conhece. Algumas são primas bem próximas.", [
+      e("ア", "", "a", "a", "Parece um machado, ou um A sem a perna da direita."),
+      e("イ", "", "i", "i", "Uma pessoa encostada num poste."),
+      e("ウ", "", "u", "u", "É う com um chapéu: tracinho em cima e uma casinha."),
+      e("エ", "", "e", "e", "Uma viga de elevador. E de elevador."),
+      e("オ", "", "o", "o", "Uma cruz com um traço na diagonal: alguém de braços abertos gritando “Ô!”.")
+    ]),
+    s("A família K", "Repare como カ e キ são quase iguais a か e き.", [
+      e("カ", "", "ka", "ka", "Igual a か, só que sem o tracinho."),
+      e("キ", "", "ki", "ki", "Igual a き, sem a curva de baixo."),
+      e("ク", "", "ku", "ku", "Um 7 baixinho, com o canto virado para a esquerda."),
+      e("ケ", "", "ke", "ke", "Parece um K torto."),
+      e("コ", "", "ko", "ko", "A quina de uma caixa. É こ com os cantos ligados.")
+    ], "Muitas letras do katakana lembram o hiragana. Procure a semelhança!")
   ], [
-    q("Katakana representa…", ["Somente significados", "Os mesmos sons básicos do hiragana", "Só palavras japonesas antigas"], 1, "Os dois silabários compartilham os sons básicos."),
-    q("Como se lê カメラ?", ["kamera", "karame", "kamira"], 0, "カ・メ・ラ: ka-me-ra."),
-    q("Como costuma ser escrito Brasil?", ["ぶらじる apenas", "Brasil apenas", "ブラジル"], 2, "Nomes estrangeiros costumam ser escritos em katakana.")
-  ], { route: "kana", script: "katakana", rows: ["a", "ka"], label: "Começar katakana" }),
-  l("k-lookalikes", "Parecidos, mas diferentes", 7, "Distinguir シ・ツ e ソ・ン e usar a ordem dos traços como apoio.", [
-    s("シ e ツ", "シ é shi; ツ é tsu. Observe a posição dos dois traços pequenos e a direção do traço maior. Na escrita, o traço longo de シ sobe; o de ツ desce. Veja os modelos animados antes de copiar.", [e("シ", "", "shi", "Compare com し"), e("ツ", "", "tsu", "Compare com つ")]),
-    s("ソ e ン", "ソ é so e ン é n. Também diferem pela inclinação e pelo sentido do traço longo. Evite adivinhar só por um ponto isolado.", [e("ソファ", "", "sofa", "sofá"), e("パン", "", "pan", "pão"), e("シャツ", "", "shatsu", "camisa")], "Fontes tipográficas podem variar. O caderno usa modelos próprios para estudar os traços.")
+    q("O katakana representa…", ["Só significados", "Os mesmos sons do hiragana", "Só palavras antigas"], 1, "Hiragana e katakana têm os mesmos sons. Muda o desenho e o uso."),
+    q("Como se lê カメラ?", ["kamera", "karame", "kamira"], 0, "カ・メ・ラ: ka-me-ra, câmera."),
+    q("Como Brasil costuma ser escrito em japonês?", ["ぶらじる", "Brasil", "ブラジル"], 2, "Nomes estrangeiros costumam ser escritos em katakana.")
+  ], { route: "kana", script: "katakana", rows: ["a", "ka"], label: "Começar o katakana" }, {
+    hook: "Boa notícia: você já sabe todos os sons do katakana. Só falta conhecer o desenho novo.",
+    recap: ["Katakana: os mesmos sons do hiragana, com desenho mais reto.", "Aparece em palavras estrangeiras, nomes e marcas.", "ア イ ウ エ オ · カ キ ク ケ コ."]
+  }),
+  l("k-lookalikes", "シ ou ツ? ソ ou ン?", 6, "Distinguir シ, ツ, ソ e ン pela direção do traço longo.", [
+    s("シ e ツ", "シ é shi; ツ é tsu. O truque está nos pingos e no traço longo.\nEm シ, os pingos ficam um embaixo do outro, à esquerda, e o traço longo sobe de baixo para cima. Em ツ, os pingos ficam lado a lado, em cima, e o traço longo desce.", [e("シ", "", "shi", "shi", "Pingos à esquerda, traço subindo. Compare com し."), e("ツ", "", "tsu", "tsu", "Pingos em cima, traço descendo. Compare com つ.")]),
+    s("ソ e ン", "ソ é so; ン é n. A lógica é a mesma: em ソ, o traço longo desce de cima; em ン, ele sobe de baixo, como em シ.", [e("ソファ", "", "sofa", "sofá"), e("パン", "", "pan", "pão"), e("シャツ", "", "shatsu", "camisa")], "Na dúvida, olhe a direção do traço longo: subindo é シ ou ン; descendo é ツ ou ソ.")
   ], [
-    q("Qual caractere é shi?", ["ツ", "シ", "ソ"], 1, "シ é shi. ツ é tsu."),
-    q("Como se lê パン?", ["pan", "paso", "ban"], 0, "パ é pa e ン é n."),
-    q("O que ajuda a distinguir caracteres parecidos?", ["Só a cor", "Ignorar a direção", "Observar posição e ordem dos traços"], 2, "A escrita ajuda a reconhecer as diferenças de forma e direção.")
-  ], { route: "writing", char: "シ", label: "Comparar os traços" }),
-  l("k-long", "Vogais longas e sons adaptados", 6, "Ler o prolongamento ー e combinações comuns em empréstimos.", [
-    s("Uma linha que prolonga", "Em katakana, ー normalmente prolonga a vogal anterior por mais uma mora. Em コーヒー, tanto o o como o i são longos.", [e("コーヒー", "", "kōhī", "café"), e("スーパー", "", "sūpā", "supermercado"), e("ケーキ", "", "kēki", "bolo")]),
-    s("Combinações para outros sons", "Vogais pequenas ajudam a adaptar sons estrangeiros: ファ é fa, フィ é fi, ティ é ti. Nem toda combinação funciona como o padrão com ャ・ュ・ョ.", [e("テレビ", "", "terebi", "televisão"), e("パーティー", "", "pātī", "festa"), e("チケット", "", "chiketto", "ingresso / bilhete")], "O pequeno ッ funciona como o っ do hiragana: prepara uma pausa antes da consoante.")
+    q("Qual letra é shi?", ["ツ", "シ", "ソ"], 1, "シ é shi: pingos à esquerda e traço longo subindo. ツ é tsu."),
+    q("Como se lê パン?", ["pan", "paso", "ban"], 0, "パ é pa e ン é n: pan, pão."),
+    q("O que ajuda a separar letras parecidas?", ["Só a cor", "Ignorar a direção", "Olhar a posição dos pingos e a direção do traço"], 2, "A direção do traço longo e a posição dos pingos resolvem a dúvida.")
+  ], { route: "writing", char: "シ", label: "Comparar os traços" }, {
+    hook: "As quatro letras que mais confundem quem aprende katakana. Com um truque, a confusão acaba.",
+    recap: ["シ (shi) e ン (n): o traço longo sobe.", "ツ (tsu) e ソ (so): o traço longo desce.", "Pingos lado a lado, em cima: ツ. Um embaixo do outro: シ."]
+  }),
+  l("k-long", "ー e letras pequenas: sons de fora", 6, "Ler o tracinho ー e as combinações que adaptam sons estrangeiros.", [
+    s("ー estica o som", "No katakana, a vogal esticada vira um tracinho: ー. Ele repete a vogal anterior por mais uma batida.\nEm コーヒー (café), tanto o o quanto o i são esticados: kō-hī.", [e("コーヒー", "", "kōhī", "café"), e("スーパー", "", "sūpā", "supermercado"), e("ケーキ", "", "kēki", "bolo")]),
+    s("Letras pequenas para sons novos", "Para escrever sons que não existem no japonês, o katakana usa vogais pequenas: フ + ァ = fa; テ + ィ = ti.\nE o ッ pequeno é a mesma pausinha do っ do hiragana.", [e("テレビ", "", "terebi", "televisão"), e("パーティー", "", "pātī", "festa"), e("チケット", "", "chiketto", "ingresso / bilhete")], "Nem toda combinação segue o padrão de ャ, ュ, ョ. Aprenda junto com a palavra.")
   ], [
-    q("O que faz o sinal ー?", ["Termina a frase", "Prolonga a vogal anterior", "Apaga a consoante"], 1, "ー acrescenta duração à vogal."),
-    q("Qual leitura corresponde a コーヒー?", ["kōhī", "kohi curto", "kōhe"], 0, "As duas vogais marcadas por ー são longas."),
-    q("Como se lê ファ?", ["fu-a em duas moras", "ha", "fa"], 2, "O ァ pequeno combina com フ para adaptar fa.")
-  ], { route: "kana", script: "katakana", label: "Explorar a tabela" })
+    q("O que faz o sinal ー?", ["Termina a frase", "Estica a vogal anterior", "Apaga a consoante"], 1, "ー acrescenta uma batida à vogal anterior."),
+    q("Qual leitura corresponde a コーヒー?", ["kōhī", "kohi, tudo curto", "kōhe"], 0, "As duas vogais marcadas por ー são esticadas: kō-hī."),
+    q("Como se lê ファ?", ["fu-a, em duas batidas", "ha", "fa"], 2, "O ァ pequeno se junta ao フ para formar fa.")
+  ], { route: "kana", script: "katakana", label: "Explorar a tabela" }, {
+    hook: "Café, bolo, festa: quase todo cardápio japonês usa estes truques.",
+    recap: ["ー estica a vogal anterior: コーヒー.", "Vogais pequenas criam sons novos: ファ é fa, ティ é ti.", "ッ pequeno é uma pausinha, igual ao っ do hiragana."]
+  })
 ];
