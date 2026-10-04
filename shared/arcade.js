@@ -2,8 +2,11 @@ import { KANA } from './content.js';
 import { SENTENCES } from './catalog.js';
 import { VOCABULARY } from './vocabulary.js';
 import { PICTURE_WORDS } from './printActivities.js';
+import { rendaPool } from './renda.js';
 
 export const GAMES = [
+  // Só toque, quatro botões grandes: o treino rápido de kana e kanji que funciona bem no celular.
+  { id: 'renda', kind: 'tap', featured: true, title: 'Só mais um', subtitle: 'Renda · れんだ', description: 'Kana e kanji em sequência rápida. Toque na resposta certa e tente bater o seu recorde.', image: 'teacher', color: 'peach' },
   { id: 'sentences', title: 'Uma frase de cada vez', subtitle: 'Transcrição em japonês', description: 'Observe a frase em kana ou kanji e transcreva, no seu ritmo.', image: 'book', color: 'blue' },
   { id: 'pictures', title: 'Olhou, escreveu', subtitle: 'Vocabulário por imagens', description: 'Só a imagem. Você encontra a palavra em japonês.', image: 'apple', color: 'peach' },
   { id: 'difference', title: 'Parecidos, mas diferentes', subtitle: 'Reconhecimento de kana', description: 'シ ou ツ? Treine seu olhar para os pequenos detalhes.', image: 'cat', color: 'lilac' },
@@ -52,6 +55,7 @@ export function buildPool({ game = 'sentences', script = 'all' } = {}) {
   }));
   // Karuta: a carta mostra a palavra em kana ou como se escreve; o áudio sempre usa a forma do catálogo.
   if (game === 'karuta') return VOCABULARY.map(word => ({ id: word.id, label: `${word.jp} · ${word.pt}`, prompt: '', answers: [word.id], card: script === 'kana' ? word.reading : word.jp, speak: word.jp, reading: word.reading, romaji: word.romaji, pt: word.pt, category: word.group, language: 'ja' }));
+  if (game === 'renda') return rendaPool({ script }).map(item => ({ ...item, answers: [item.id], language: 'ja' }));
   // No shiritori, só as palavras do vocabulário do Maru entram na revisão.
   if (game === 'shiritori') return VOCABULARY.filter(word => ['people', 'food', 'places', 'things', 'time'].includes(word.group)).map(word => ({ id: word.id, label: `${word.jp} · ${word.pt}`, answers: [word.reading], language: 'ja' }));
   if (!['sentences','translate'].includes(game)) return [];
