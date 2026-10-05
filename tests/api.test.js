@@ -10,7 +10,7 @@ import { createProgressStorage } from "../backend/storage.js";
 test("API serves content, validates phrases and round-trips isolated progress", async t => {
   const directory = await mkdtemp(path.join(tmpdir(), "maru-api-test-"));
   const storage = createProgressStorage(directory);
-  const server = createServer({ storage, speech: { prepare: async text => ({ url: "https://audio1.tts.quest/v1/data/abc/audio.mp3s", attribution: "VOICEVOX:ずんだもん", text }) } });
+  const server = createServer({ storage, speech: { prepare: async text => ({ url: "https://audio1.tts.quest/v1/data/abc/audio.mp3s", attribution: "VOICEVOX:No.7", text }) } });
   await new Promise((resolve, reject) => { server.once("error", reject); server.listen(0, "127.0.0.1", resolve); });
   t.after(async () => { await new Promise(resolve => server.close(resolve)); await rm(directory, { recursive: true, force: true }); });
   const base = "http://127.0.0.1:" + server.address().port;
@@ -36,7 +36,7 @@ test("API serves content, validates phrases and round-trips isolated progress", 
   assert.equal((await fetch(base + "/")).status, 404);
   const audio = await fetch(base + "/api/audio", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({text:"こんにちは"}) });
   assert.equal(audio.status,200);
-  assert.equal((await audio.json()).attribution,"VOICEVOX:ずんだもん");
+  assert.equal((await audio.json()).attribution,"VOICEVOX:No.7");
   assert.equal((await fetch(base+"/api/audio",{method:"POST",body:JSON.stringify({text:42})})).status,400);
   assert.equal((await fetch(base+"/api/audio",{method:"POST",body:JSON.stringify({text:"あ".repeat(501)})})).status,400);
   await Promise.all([storage.write({ xp: { total: 1 } }, "race"), storage.write({ xp: { total: 2 } }, "race")]);

@@ -1,6 +1,8 @@
 import { getPronunciation } from "../shared/pronunciation.js";
 
 const API = "https://api.tts.quest/v3/voicevox/synthesis";
+// No.7 (アナウンス): voz adulta de locução. O crédito acompanha a voz por exigência do VOICEVOX.
+const SPEAKER = "30", ATTRIBUTION = "VOICEVOX:No.7";
 const remoteAudio = value => {
   try { const url = new URL(value); return url.protocol === "https:" && /^audio\d+\.tts\.quest$/.test(url.hostname) && /^\/v1\/data\/[a-f0-9]+\/audio\.mp3s?$/.test(url.pathname) ? url.href : null; }
   catch { return null; }
@@ -19,7 +21,7 @@ export function createSpeechService({ fetchImpl = fetch, key = process.env.TTS_Q
     if (pending.has(entry.spoken)) return pending.get(entry.spoken);
     if (now() < blockedUntil) throw failure(429, "A API de voz pediu um intervalo. Tente novamente em alguns instantes.", Math.ceil((blockedUntil - now()) / 1000));
     const request = (async () => {
-      const params = new URLSearchParams({ speaker: "3", text: entry.spoken });
+      const params = new URLSearchParams({ speaker: SPEAKER, text: entry.spoken });
       if (key) params.set("key", key);
       let response;
       try { response = await fetchImpl(API + "?" + params, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(15000) }); }
@@ -32,7 +34,7 @@ export function createSpeechService({ fetchImpl = fetch, key = process.env.TTS_Q
       }
       const url = remoteAudio(data.mp3StreamingUrl);
       if (!response.ok || !data.success || !url) throw failure(503, "A API de voz não conseguiu preparar esta pronúncia. Tente novamente.");
-      const value = { url, provider: "TTS Quest", attribution: "VOICEVOX:ずんだもん", expiresAt: now() + 10 * 60 * 1000 };
+      const value = { url, provider: "TTS Quest", attribution: ATTRIBUTION, expiresAt: now() + 10 * 60 * 1000 };
       if (cache.size >= 500) cache.delete(cache.keys().next().value);
       cache.set(entry.spoken, { value, expires: value.expiresAt });
       return value;

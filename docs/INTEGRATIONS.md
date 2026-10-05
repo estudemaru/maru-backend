@@ -3,15 +3,18 @@
 ## Pronúncia: TTS Quest / VOICEVOX
 
 O Maru solicita a pronúncia quando o aluno toca no botão. O backend consulta
-`https://api.tts.quest/v3/voicevox/synthesis`, com a leitura ensinada e `speaker=3`.
+`https://api.tts.quest/v3/voicevox/synthesis`, com a leitura ensinada e `speaker=30`
+(No.7, estilo アナウンス: voz adulta de locução, escolhida por soar neutra).
 A resposta contém uma URL remota de streaming, reproduzida pelo navegador.
 Nenhum modelo de voz, MP3 ou gerador local faz parte do projeto.
 
-- Crédito da voz: **VOICEVOX:ずんだもん**.
+- Crédito da voz: **VOICEVOX:No.7**, obrigatório pelos termos do VOICEVOX.
 - [Documentação do provedor](https://github.com/ts-klassen/ttsQuestV3Voicevox).
 - [Modalidade pública sem chave](https://voicevox.su-shiki.com/su-shikiapis/ttsquest/).
 - [Termos VOICEVOX](https://voicevox.hiroshiba.jp/term/).
-- [Termos da biblioteca de voz](https://zunko.jp/con_ongen_kiyaku.html).
+- [Termos da voz No.7](https://voiceseven.com/#j0400): uso não comercial livre e
+  sem pedido prévio, como o Maru gratuito e sem anúncios. Uso comercial (anúncios,
+  assinatura, venda) exige licença paga; consulte os termos antes de mudar o modelo.
 
 É necessário acesso à internet. A modalidade pública pode impor espera entre
 consultas. O serviço respeita `retryAfter`, informa o intervalo e reutiliza URLs

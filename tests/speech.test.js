@@ -10,9 +10,9 @@ test("speech requests the taught reading, deduplicates and caches only remote UR
   assert.deepEqual(a,b);
   assert.equal(calls.length,1);
   assert.equal(calls[0].searchParams.get("text"),"みず");
-  assert.equal(calls[0].searchParams.get("speaker"),"3");
+  assert.equal(calls[0].searchParams.get("speaker"),"30");
   assert.equal(a.url,valid.mp3StreamingUrl);
-  assert.equal(a.attribution,"VOICEVOX:ずんだもん");
+  assert.equal(a.attribution,"VOICEVOX:No.7");
   assert.ok(!JSON.stringify(a).includes("test-key"));
   await service.prepare("水");assert.equal(calls.length,1);
   await assert.rejects(service.prepare("a private message not in the curriculum"),error=>error.status===400);
