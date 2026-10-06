@@ -1,3 +1,4 @@
+import { createAiService } from "./aiService.js";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,11 +8,11 @@ import { createProgressStorage } from "./storage.js";
 import { createSpeechService } from "./speechService.js";
 import { createAuthService } from "./authService.js";
 
-export function createServer({ storage = createProgressStorage(), speech = createSpeechService(), auth = createAuthService(storage) } = {}) {
+export function createServer({ storage = createProgressStorage(), speech = createSpeechService(), auth = createAuthService(storage), ai = createAiService() } = {}) {
   const server = http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url || "/", "http://localhost");
-      if (url.pathname.startsWith("/api/")) await handleApi(req, res, url, storage, speech, auth);
+      if (url.pathname.startsWith("/api/")) await handleApi(req, res, url, storage, speech, auth, ai);
       else sendJson(res, 404, { error: "Use um endpoint /api do Maru." });
     } catch (error) {
       if (!res.headersSent && !res.destroyed) {

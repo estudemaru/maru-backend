@@ -1,3 +1,4 @@
+import { createAiService, createSupabaseQuota } from "../../../backend/aiService.js";
 import { CONTENT } from "../../../backend/contentService.js";
 import { createSpeechService } from "../../../backend/speechService.js";
 import { checkPhrase } from "../../../backend/phraseService.js";
@@ -35,7 +36,7 @@ async function readJson(request) {
   }
 }
 
-export function createMaruHandler({ repository, auth, speech }) {
+export function createMaruHandler({ repository, auth, speech, ai }) {
   return async function handle(request) {
     const url = new URL(request.url);
     const apiPosition = url.pathname.indexOf("/api/");
@@ -74,6 +75,16 @@ export function createMaruHandler({ repository, auth, speech }) {
         return json(200, payload, authCookies);
       }
 
+      if (pathname === "/api/ai/status" && request.method === "GET") return json(200, { enabled: Boolean(ai?.enabled) });
+      if (pathname === "/api/ai/phrase" || pathname === "/api/ai/tutor") {
+        if (request.method !== "POST") return json(405, { error: "Método não permitido." });
+        auth.assertSameOrigin(request);
+        const session = await auth.session(request);
+        cookies = session.cookies;
+        if (!session.user) return json(401, { error: "Entre na sua conta para usar a IA do Maru." }, cookies);
+        if (!ai?.enabled) return json(503, { error: "A IA do Maru ainda não está disponível." }, cookies);
+        return json(200, await ai[pathname.endsWith("phrase") ? "phrase" : "tutor"](session.user.id, await readJson(request)), cookies);
+      }
       if (pathname === "/api/phrase/check") {
         if (request.method !== "POST") return json(405, { error: "Método não permitido." });
         return json(200, checkPhrase(await readJson(request)));
@@ -147,6 +158,8 @@ function environment() {
     MARU_ALLOWED_ORIGINS: get("MARU_ALLOWED_ORIGINS") || "https://estudemaru.com.br,https://www.estudemaru.com.br,https://maru-frontend-murex.vercel.app",
     MARU_GOOGLE_ENABLED: get("MARU_GOOGLE_ENABLED"),
     MARU_DISCORD_ENABLED: get("MARU_DISCORD_ENABLED"),
+    OPENAI_API_KEY: get("OPENAI_API_KEY"),
+    OPENAI_MODEL: get("OPENAI_MODEL") || "gpt-4.1-mini-2025-04-14",
     TTS_QUEST_API_KEY: get("TTS_QUEST_API_KEY")
   };
 }
@@ -161,6 +174,8 @@ if (typeof Deno !== "undefined") {
       allowedOrigins: env.MARU_ALLOWED_ORIGINS.split(",").map(origin => origin.trim()).filter(Boolean),
       googleEnabled: env.MARU_GOOGLE_ENABLED === "true", discordEnabled: env.MARU_DISCORD_ENABLED === "true"
     }),
+    ai: createAiService({ key: env.OPENAI_API_KEY, model: env.OPENAI_MODEL,
+      consumeQuota: createSupabaseQuota({ url: env.SUPABASE_URL, serviceKey: env.SUPABASE_SERVICE_ROLE_KEY }) }),
     speech: createSpeechService({ key: env.TTS_QUEST_API_KEY })
   });
   Deno.serve(handler);
