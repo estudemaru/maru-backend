@@ -39,6 +39,16 @@ em cookies `HttpOnly`, `SameSite=Lax` e `Secure`; o frontend recebe apenas a
 identidade pública. Ambos os provedores preservam a mesma importação do
 progresso visitante e a separação entre contas usadas pelo e-mail.
 
+O cookie de renovação é persistente por 365 dias e recebe esse prazo novamente
+a cada renovação. Fechar o navegador não encerra a sessão; o token de acesso
+mantém a duração curta definida pelo Supabase. Falhas temporárias, limites e
+respostas inválidas da autenticação retornam indisponibilidade sem apagar os
+cookies. Só uma confirmação de sessão inválida/revogada ou a saída explícita
+encerra o login. Renovações simultâneas na mesma instância compartilham a
+requisição em andamento. A interface verifica a conta novamente ao voltar à
+aba ou ao aplicativo, preservando o cache local durante uma indisponibilidade.
+As políticas de duração e inatividade do projeto Supabase continuam aplicáveis.
+
 No Supabase **Authentication → URL Configuration**, o Site URL desejado é
 `https://estudemaru.com.br`. A lista completa desejada de Redirect URLs está em
 `supabase/config.toml`. Cada origem servida precisa da própria origem e dos
@@ -120,5 +130,6 @@ sincronizado em outro aparelho. Não registre cookies, tokens ou dados privados.
 Referências oficiais: [Google](https://supabase.com/docs/guides/auth/social-login/auth-google),
 [Discord](https://supabase.com/docs/guides/auth/social-login/auth-discord),
 [PKCE](https://supabase.com/docs/guides/auth/sessions/pkce-flow),
+[sessões](https://supabase.com/docs/guides/auth/sessions),
 [redirecionamentos](https://supabase.com/docs/guides/auth/redirect-urls) e
 [SMTP](https://supabase.com/docs/guides/auth/auth-smtp).

@@ -1,4 +1,8 @@
-const SESSION_AGE = 30 * 86400;
+const SESSION_AGE = 365 * 86400;
+const INVALID_SESSION_CODES = new Set([
+  "refresh_token_not_found", "refresh_token_already_used", "session_not_found",
+  "session_expired", "user_not_found", "user_banned"
+]);
 const ACCESS_TOKEN = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
 const REFRESH_TOKEN = /^[A-Za-z0-9._~-]{20,4096}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -46,6 +50,7 @@ export function createAuth({ supabaseUrl, anonKey, publicOrigin, allowedOrigins 
   }
   const authUrl = new URL("/auth/v1/", supabaseUrl);
   let settings, settingsExpireAt = 0, settingsRequest;
+  const refreshRequests = new Map();
 
   // Only explicit trusted origins may receive an OAuth or e-mail callback.
   // Vercel proxies the request URL, so a same-origin Referer identifies the
@@ -107,6 +112,44 @@ export function createAuth({ supabaseUrl, anonKey, publicOrigin, allowedOrigins 
 
   function authError(message, status = 400) {
     throw Object.assign(new Error(message), { status });
+  }
+
+  function sessionUnavailable() {
+    authError("Não foi possível verificar sua conta agora. Tente novamente em instantes.", 503);
+  }
+
+  async function sessionRequest(path, options) {
+    try {
+      const result = await authRequest(path, options);
+      if (!result.data || typeof result.data !== "object" || Array.isArray(result.data)) sessionUnavailable();
+      return result;
+    }
+    catch { sessionUnavailable(); }
+  }
+
+  function refreshSession(refresh) {
+    // Concurrent requests in this instance must share a single token rotation.
+    // Retain only in-flight requests, never completed sessions or revoked tokens.
+    if (!refreshRequests.has(refresh)) {
+      const pending = (async () => {
+        try {
+          const { response, data } = await sessionRequest("token?grant_type=refresh_token", {
+            method: "POST", body: { refresh_token: refresh }
+          });
+          if (!response.ok) {
+            const invalid = [400, 401, 403, 404, 422].includes(response.status)
+              && INVALID_SESSION_CODES.has(data.error_code || data.code);
+            if (invalid) return { user: null, access: "", cookies: clearCookies(secure) };
+            sessionUnavailable();
+          }
+          const user = accountFrom(data.user);
+          if (!user || !ACCESS_TOKEN.test(data.access_token || "") || data.access_token.length > 4096 || !REFRESH_TOKEN.test(data.refresh_token || "")) sessionUnavailable();
+          return { user, access: data.access_token, cookies: sessionCookies(data, secure) };
+        } finally { refreshRequests.delete(refresh); }
+      })();
+      refreshRequests.set(refresh, pending);
+    }
+    return refreshRequests.get(refresh);
   }
 
   return {
@@ -193,22 +236,16 @@ export function createAuth({ supabaseUrl, anonKey, publicOrigin, allowedOrigins 
       const access = cookieValue(request, "maru_access");
       const refresh = cookieValue(request, "maru_refresh");
       if (ACCESS_TOKEN.test(access) && access.length <= 4096) {
-        const { response, data } = await authRequest("user", { token: access });
+        const { response, data } = await sessionRequest("user", { token: access });
         if (response.ok) {
           const user = accountFrom(data);
           if (user) return { user, access, cookies: [] };
+          sessionUnavailable();
         }
+        if (![400, 401, 403, 404, 422].includes(response.status)) sessionUnavailable();
       }
       if (!REFRESH_TOKEN.test(refresh)) return { user: null, access: "", cookies: [] };
-      const { response, data } = await authRequest("token?grant_type=refresh_token", {
-        method: "POST", body: { refresh_token: refresh }
-      });
-      if (!response.ok || !data.access_token || !data.refresh_token) {
-        return { user: null, access: "", cookies: clearCookies(secure) };
-      }
-      const user = accountFrom(data.user);
-      if (!user) return { user: null, access: "", cookies: clearCookies(secure) };
-      return { user, access: data.access_token, cookies: sessionCookies(data, secure) };
+      return refreshSession(refresh);
     },
     async logout(request, access) {
       this.assertSameOrigin(request);
