@@ -7,6 +7,8 @@ import { rendaPool } from './renda.js';
 export const GAMES = [
   // Só toque, quatro botões grandes: o treino rápido de kana e kanji que funciona bem no celular.
   { id: 'renda', kind: 'tap', featured: true, title: 'Só mais um', subtitle: 'Renda · れんだ', description: 'Kana e kanji em sequência rápida. Toque na resposta certa e tente bater o seu recorde.', image: 'teacher', color: 'peach' },
+  // Números, horas, datas, contadores e これ/それ/あれ, também só com toque (shared/kazu.js).
+  { id: 'kazu', kind: 'tap', title: 'Quanto, quando, qual', subtitle: 'Números · かず', description: 'Números, horas, datas, contadores e isto, isso e aquilo. Veja e toque na leitura certa.', image: 'cake', color: 'sage' },
   { id: 'sentences', title: 'Uma frase de cada vez', subtitle: 'Transcrição em japonês', description: 'Observe a frase em kana ou kanji e transcreva, no seu ritmo.', image: 'book', color: 'blue' },
   { id: 'pictures', title: 'Olhou, escreveu', subtitle: 'Vocabulário por imagens', description: 'Só a imagem. Você encontra a palavra em japonês.', image: 'apple', color: 'peach' },
   { id: 'difference', title: 'Parecidos, mas diferentes', subtitle: 'Reconhecimento de kana', description: 'シ ou ツ? Treine seu olhar para os pequenos detalhes.', image: 'cat', color: 'lilac' },

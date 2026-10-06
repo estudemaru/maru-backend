@@ -3,6 +3,7 @@ import { foundationLessons, hiraganaLessons, katakanaLessons } from "./lessons/w
 import { hiraganaRowLessons, katakanaRowLessons } from "./lessons/kana.js";
 import { kanjiLessons, sentenceLessons, particleLessons } from "./lessons/grammar.js";
 import { everydayLessons, casualLessons } from "./lessons/conversation.js";
+import { numberLessons } from "./lessons/numbers.js";
 
 // Every lesson lives in a themed file; each stage lists its lessons by ID in the
 // recommended order. IDs are stored in progress: renaming one needs a migration.
@@ -14,6 +15,7 @@ const ALL = new Map([
   ...sentenceLessons, ...additionalLessons.sentences,
   ...particleLessons, ...additionalLessons.particles,
   ...everydayLessons, ...additionalLessons.everyday,
+  ...numberLessons,
   ...casualLessons, ...additionalLessons.casual
 ].map(lesson => [lesson.id, lesson]));
 const pick = ids => ids.map(id => {
@@ -37,7 +39,9 @@ export const MODULES = [
     lessons: pick(["particle-topic", "particle-place", "particle-connect", "particle-existence"]) },
   { id: "everyday", number: "07", title: "Japonês no dia a dia", subtitle: "Peça um café, encontre lugares e converse.", outcome: "pedir, perguntar o caminho e manter uma conversa curta", symbol: "話", color: "sage",
     lessons: pick(["daily-order", "daily-find", "daily-help", "daily-numbers", "daily-dialogue"]) },
-  { id: "casual", number: "08", title: "Além dos livros", subtitle: "Gírias, expressões e contexto para usar bem.", outcome: "entender gírias e expressões e saber quando usá-las", symbol: "ね", color: "lavender",
+  { id: "numbers", number: "08", title: "Quanto, quando e qual", subtitle: "Números, horas, datas, contadores e o jeito de apontar.", outcome: "dizer números, horas e datas, contar coisas e apontar para o que está perto ou longe", symbol: "数", color: "sky", recommendedAfter: ["hiragana", "katakana"],
+    lessons: pick(["num-count", "num-time", "num-week", "num-dates", "num-counters", "num-pointing"]) },
+  { id: "casual", number: "09", title: "Além dos livros", subtitle: "Gírias, expressões e contexto para usar bem.", outcome: "entender gírias e expressões e saber quando usá-las", symbol: "ね", color: "lavender",
     lessons: pick(["casual-register", "casual-slang", "casual-culture", "casual-short", "casual-communities"]) }
 ];
 
