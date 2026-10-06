@@ -21,6 +21,18 @@ test('structured phrase result and malformed/refused/incomplete responses',async
  await assert.rejects(()=>broken.tutor('user',{lessonId:LESSONS[0].id,question:'Como ler?'}),e=>e.status===503);
  }
 });
+test('provider billing failures are unavailable while temporary rate limits stay 429, without exposing provider details',async()=>{
+ for(const [error,status] of [
+  [{type:'insufficient_quota',code:'credit_balance_exhausted'},503],
+  [{code:'project_spend_limit_exceeded'},503],
+  [{type:'rate_limit_error',code:'rate_limit_exceeded'},429]
+ ]){
+  const ai=createAiService({key:'private-key',fetchImpl:async()=>Response.json({error:{...error,message:'private-key and internal billing details'}},{status:429})});
+  await assert.rejects(()=>ai.tutor('user',{lessonId:LESSONS[0].id,question:'Como ler?'}),failure=>{
+   assert.equal(failure.status,status);assert.ok(!failure.message.includes('private-key'));return true;
+  });
+ }
+});
 test('local quota resets daily and database quota fails closed',async()=>{
  let now=Date.UTC(2026,9,6);const consume=createLocalQuota({now:()=>now});for(let i=0;i<20;i++)await consume('user');
  await assert.rejects(()=>consume('user'),e=>e.status===429);now+=86400000;await consume('user');

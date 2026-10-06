@@ -57,7 +57,15 @@ export function createAiService({ key = globalThis.process?.env.OPENAI_API_KEY |
         })
       });
     } catch { throw failure(503, "A IA demorou para responder. Tente novamente."); }
-    if (!response.ok) throw failure(response.status === 429 ? 429 : 503, "A IA está indisponível no momento. Tente novamente mais tarde.");
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      const billingError = body?.error?.type === "insufficient_quota" || [
+        "insufficient_quota", "usage_limit_exceeded", "credit_balance_exhausted", "project_spend_limit_exceeded",
+        "organization_spend_limit_exceeded", "organization_usage_limit_exceeded"
+      ].includes(body?.error?.code);
+      throw failure(response.status === 429 && !billingError ? 429 : 503,
+        "A IA está indisponível no momento. Tente novamente mais tarde.");
+    }
     try {
       const body = await response.json();
       if (body.status !== "completed") throw new Error();
