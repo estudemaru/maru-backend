@@ -6,16 +6,24 @@ alternativo atual é `https://maru-frontend-murex.vercel.app`. A produção usa
 Postgres e Supabase Auth; o servidor Node/SQLite serve para desenvolvimento e
 preservação de dados antigos.
 
-## Estado verificado em 29/09/2026
+## Estado verificado em 06/10/2026
 
-O domínio principal e o endereço Vercel responderam HTTP 200 em `/api/account`.
-A resposta pública ainda trazia `googleEnabled: false`, sem os campos
-`emailEnabled` e `discordEnabled`: a função publicada está anterior ao código
-local. A responsável informou ter habilitado Google e Discord no Supabase.
+O Supabase CLI está autenticado e vinculado ao projeto `qxtgaalmyzyldmcpwooo`.
+A migração `20261006000000_maru_ai_quota.sql` foi aplicada e a função `maru-api`
+foi publicada com tutor, correção de frases e quota compartilhada. Os secrets da
+OpenAI estão configurados no servidor. Na API da função, `/api/health` respondeu
+200 e `/api/ai/status` respondeu `enabled: true`; os recursos de IA exigiram
+login e rejeitaram outra origem. As permissões da quota foram verificadas.
 
-O Supabase CLI continua sem sessão nesta máquina. Não foi possível verificar
-os valores administrativos de Auth, SMTP, Redirect URLs, migrações ou políticas
-remotas. Nenhuma configuração, publicação ou alteração no banco foi executada.
+O frontend correspondente foi publicado na Vercel, com estado **Ready** e alias
+`https://estudemaru.com.br`. Deploy:
+`https://maru-frontend-d0kxqz3f1-toque-de-mulher.vercel.app`.
+
+A primeira chamada real à OpenAI foi rejeitada por saldo esgotado
+(`credit_balance_exhausted`). A responsável adicionará créditos depois;
+respostas reais e o fluxo completo com login ainda precisam ser verificados.
+As configurações administrativas de Auth, SMTP e Redirect URLs não foram
+revalidadas nesta publicação.
 
 ## Google, Discord e e-mail
 
@@ -62,8 +70,8 @@ npm run build:edge
 supabase functions deploy maru-api --project-ref qxtgaalmyzyldmcpwooo
 ```
 
-Os comandos acima são o procedimento de publicação, ainda pendente. Publique
-backend e frontend correspondentes juntos após verificar o projeto e os
+Os comandos acima são o procedimento de publicação. Publique backend e
+frontend correspondentes juntos após verificar o projeto e os
 Redirect URLs; o arquivo `supabase/config.toml` não altera o painel sozinho.
 
 A função prefere as chaves `default` de `SUPABASE_PUBLISHABLE_KEYS` e
@@ -76,6 +84,8 @@ A função prefere as chaves `default` de `SUPABASE_PUBLISHABLE_KEYS` e
 | `MARU_ALLOWED_ORIGINS` | Origens adicionais separadas por vírgulas. Padrão: domínio principal, `www` e o endereço Vercel atual. |
 | `MARU_GOOGLE_ENABLED`, `MARU_DISCORD_ENABLED` | Fallback opcional quando a consulta de provedores ao Supabase falha; não substituem as definições retornadas pelo Supabase. |
 | `TTS_QUEST_API_KEY` | Chave opcional da API de pronúncia. |
+| `OPENAI_API_KEY` | Secret da API OpenAI para tutor e correção de frases; somente no servidor. |
+| `OPENAI_MODEL` | Modelo da IA; padrão `gpt-4.1-mini-2025-04-14`. |
 
 `verify_jwt = false` é intencional: conteúdo e perfis de navegador são públicos.
 A função valida contas no Supabase Auth e rejeita escritas quando a origem ou

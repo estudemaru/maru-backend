@@ -43,7 +43,7 @@ estudo são documentados no repositório `maru-frontend`.
 
 ## IA: OpenAI Responses API
 
-A branch inclui correção opcional de frases (`POST /api/ai/phrase`) e dúvidas
+O Maru inclui correção opcional de frases (`POST /api/ai/phrase`) e dúvidas
 sobre a lição (`POST /api/ai/tutor`). Ambos exigem sessão autenticada e origem
 permitida. A comparação determinística continua em `/api/phrase/check`.
 `GET /api/ai/status` permite ocultar os controles quando não há chave.
@@ -71,8 +71,28 @@ a quota é apenas em memória e reinicia com o processo; para múltiplas instân
 injetar `createSupabaseQuota` ou outra quota persistente. Os limites de solicitações
 não constituem um teto financeiro; configurar também limites no projeto OpenAI.
 
-Sem chave, os recursos ficam desativados. Não foi realizado teste pago com uma
-chave real: os testes automatizados usam respostas simuladas do provedor.
+Sem chave, os recursos ficam desativados. Falhas de saldo ou de limites de gastos
+do provedor retornam indisponibilidade (`503`); limites temporários de requisições
+continuam retornando `429`. Os detalhes internos do provedor não são expostos
+ao aluno.
+
+### Verificação em 06/10/2026
+
+A migração de quota foi aplicada ao projeto `qxtgaalmyzyldmcpwooo` e os secrets
+`OPENAI_API_KEY` e `OPENAI_MODEL` foram configurados. A função `maru-api` e o
+frontend correspondente foram publicados em `https://estudemaru.com.br`.
+A API da função respondeu `enabled: true`; tutor e correção rejeitaram acesso
+sem login (`401`), e outra origem foi rejeitada (`403`). RLS e as permissões da
+quota foram conferidas: somente `service_role` pode chamar a função SQL.
+
+Os testes do backend e os quatro testes de navegador da IA passaram. Uma chamada
+real com a chave configurada recebeu `429`, tipo `insufficient_quota`, código
+`credit_balance_exhausted`. A responsável informou que adicionará créditos depois.
+A resposta real e o fluxo completo com uma conta autenticada permanecem pendentes.
+Após adicionar créditos ao projeto da chave, testar uma pergunta no tutor de uma
+lição e uma frase com a opção de correção por IA; a mesma configuração será usada.
+
+- [Códigos de erro da OpenAI](https://developers.openai.com/api/docs/guides/error-codes).
 
 - https://developers.openai.com/api/reference/overview
 - https://developers.openai.com/api/docs/guides/structured-outputs

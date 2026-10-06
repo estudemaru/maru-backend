@@ -50,6 +50,9 @@ Veja [publicação e configuração](docs/DEPLOYMENT.md).
 | `GET` | `/api/content` | Conteúdo e currículo. |
 | `GET`, `PUT` | `/api/progress` | Leitura e sincronização do progresso. |
 | `POST` | `/api/phrase/check` | Verificação de exercícios guiados. |
+| `GET` | `/api/ai/status` | Disponibilidade dos recursos de IA. |
+| `POST` | `/api/ai/phrase` | Correção com IA; exige login e quota disponível. |
+| `POST` | `/api/ai/tutor` | Dúvidas sobre a lição com IA; exige login e quota disponível. |
 | `POST` | `/api/audio` | Preparação de pronúncia. |
 | `GET` | `/api/account` | Estado da sessão. |
 | `POST` | `/api/auth/email/signup` | Cadastro por e-mail; requer confirmação. |
@@ -58,6 +61,17 @@ Veja [publicação e configuração](docs/DEPLOYMENT.md).
 | `POST` | `/api/auth/email/complete` | Troca do link confirmado por sessão em cookie. |
 | `POST` | `/api/auth/email/password` | Alteração da senha após recuperação. |
 | `POST` | `/api/auth/logout` | Encerramento da sessão. |
+
+## IA
+
+O tutor das lições e a correção opcional de frases usam a OpenAI Responses API.
+A chave fica no secret `OPENAI_API_KEY` do Supabase; no adaptador local, em `.env`.
+O modelo padrão é `gpt-4.1-mini-2025-04-14`. Em produção, os dois recursos
+compartilham limites de 20 solicitações por conta e 500 no total por dia UTC.
+
+Backend e frontend foram publicados em 06/10/2026. A chamada real de verificação
+retornou `credit_balance_exhausted`: é necessário adicionar créditos à conta da
+API antes de validar respostas reais. Veja [configuração e verificação da IA](docs/INTEGRATIONS.md#ia-openai-responses-api).
 
 ## Verificação e dados antigos
 
