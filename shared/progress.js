@@ -1,5 +1,5 @@
 import { PLACEMENT_QUESTIONS, PLACEMENT_VERSION } from "./placement.js";
-import { MODULES } from "./curriculum.js";
+import { UNITS } from "./curriculum.js";
 import { fsrs, generatorParameters, createEmptyCard, Rating, State } from "./vendor/ts-fsrs.js";
 const DAY = 86_400_000;
 const RETRY = 600_000;
@@ -20,6 +20,13 @@ const mapRecords = (value, transform) => Object.fromEntries(Object.entries(recor
 const dailyMap = value => Object.fromEntries(Object.entries(record(value)).filter(([key, item]) => /^\d{4}-\d{2}-\d{2}$/.test(key) && item && typeof item === "object").sort(([a], [b]) => a.localeCompare(b)).slice(-730).map(([key, item]) => [key, { word: typeof record(item).word === "string" ? item.word.slice(0, 80) : "", score: Math.min(3, count(record(item).score)), completedAt: dateValue(record(item).completedAt) }]));
 // O primeiro resultado concluído do dia prevalece; refazer o desafio em outro aparelho não o substitui.
 const firstDaily = (left, right) => !left ? right : !right ? left : !left.completedAt ? right : !right.completedAt ? left : left.completedAt !== right.completedAt ? (left.completedAt < right.completedAt ? left : right) : (left.score >= right.score ? left : right);
+// Diagnósticos aceitos antes das unidades apontavam para as etapas antigas; start, hiragana
+// e numbers têm o mesmo sentido nos dois mapas. As outras viram a unidade equivalente.
+const LEGACY_PLACEMENT = { katakana: "meet", kanji: "meet", sentences: "meet", particles: "meet", everyday: "numbers", casual: "numbers" };
+const placedUnit = id => UNITS.some(unit => unit.id === id) ? id : LEGACY_PLACEMENT[id] || "";
+// Checkpoints por unidade. Chaves desconhecidas ficam guardadas: um app mais antigo não
+// apaga o checkpoint de uma unidade que ele ainda não conhece.
+const checkpointMap = value => Object.fromEntries(Object.entries(record(value)).filter(([key]) => /^[a-z][a-z0-9-]{1,39}$/.test(key)).slice(0, 100).map(([key, item]) => [key, { passedAt: dateValue(record(item).passedAt), best: Math.min(100, count(record(item).best)), attempts: count(record(item).attempts), updatedAt: dateValue(record(item).updatedAt) }]));
 const dayMap = value => Object.fromEntries(Object.entries(record(value)).filter(([key]) => /^\d{4}-\d{2}-\d{2}$/.test(key)).sort(([a], [b]) => a.localeCompare(b)).slice(-730).map(([key, amount]) => [key, count(amount)]));
 
 export function normalizeSnapshot(input = {}) {
@@ -47,8 +54,9 @@ export function normalizeSnapshot(input = {}) {
       answers: source.placement?.version === PLACEMENT_VERSION ? Object.fromEntries(PLACEMENT_QUESTIONS.filter(item => Object.hasOwn(record(source.placement?.answers), item.id)).map(item => [item.id, Number.isInteger(source.placement.answers[item.id]) && source.placement.answers[item.id] >= 0 && source.placement.answers[item.id] < item.choices.length ? source.placement.answers[item.id] : null])) : {},
       completedAt: dateValue(source.placement?.completedAt),
       updatedAt: dateValue(source.placement?.updatedAt),
-      acceptedModule: MODULES.some(item => item.id === source.placement?.acceptedModule) ? source.placement.acceptedModule : ""
+      acceptedModule: placedUnit(source.placement?.acceptedModule)
     },
+    checkpoints: checkpointMap(source.checkpoints),
     restDays: dayMap(source.restDays),
     daily: dailyMap(source.daily),
     activity: Object.fromEntries(Object.entries(record(source.activity)).filter(([key]) => /^\d{4}-\d{2}-\d{2}$/.test(key)).slice(-730).map(([key, value]) => [key, count(value)])),
@@ -83,7 +91,14 @@ export function mergeSnapshots(local, remote) {
     lessons: mergeRecords("lessons", "completedAt"),
     reviews: mergeRecords("reviews", "updatedAt"),
     kanaStats: mergeRecords("kanaStats", "updatedAt"),
-    placement: a.placement.updatedAt >= b.placement.updatedAt ? a.placement : b.placement,
+    // Empate: fica o diagnóstico com unidade. Uma aba aberta com o app antigo não conhece os
+    // IDs novos e mandaria a mesma data sem a unidade aceita.
+    placement: a.placement.updatedAt > b.placement.updatedAt || (a.placement.updatedAt === b.placement.updatedAt && (a.placement.acceptedModule || !b.placement.acceptedModule)) ? a.placement : b.placement,
+    checkpoints: Object.fromEntries([...new Set([...Object.keys(a.checkpoints), ...Object.keys(b.checkpoints)])].map(id => {
+      const left = a.checkpoints[id] || {}, right = b.checkpoints[id] || {};
+      const passed = [left.passedAt, right.passedAt].filter(Boolean);
+      return [id, { passedAt: passed.length ? Math.min(...passed) : 0, best: Math.max(left.best || 0, right.best || 0), attempts: Math.max(left.attempts || 0, right.attempts || 0), updatedAt: Math.max(left.updatedAt || 0, right.updatedAt || 0) }];
+    })),
     restDays: { ...a.restDays, ...b.restDays },
     daily: Object.fromEntries([...new Set([...Object.keys(a.daily), ...Object.keys(b.daily)])].map(day => [day, firstDaily(a.daily[day], b.daily[day])])),
     activity: Object.fromEntries([...new Set([...Object.keys(a.activity), ...Object.keys(b.activity)])].map(day => [day, Math.max(a.activity[day] || 0, b.activity[day] || 0)]))
@@ -127,6 +142,15 @@ export function completeLesson(snapshot, id, score, now = Date.now()) {
   snapshot.lessons[id] = { completedAt: now, score };
   recordActivity(snapshot, 30, now);
   return true;
+}
+
+// Cada tentativa conta como estudo. A primeira aprovação vale 50 XP; as outras, 5.
+export function recordCheckpoint(snapshot, unitId, { percent, passed }, now = Date.now()) {
+  const old = snapshot.checkpoints[unitId] || { passedAt: 0, best: 0, attempts: 0 };
+  const first = passed && !old.passedAt;
+  snapshot.checkpoints[unitId] = { passedAt: old.passedAt || (passed ? now : 0), best: Math.max(old.best, percent), attempts: old.attempts + 1, updatedAt: now };
+  recordActivity(snapshot, first ? 50 : 5, now);
+  return first;
 }
 
 // Registros anteriores ao FSRS (sem estabilidade) viram um cartão aproximado a partir do intervalo que já tinham.

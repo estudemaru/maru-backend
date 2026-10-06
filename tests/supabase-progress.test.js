@@ -53,6 +53,20 @@ test("Supabase repository keeps the first daily challenge result from each devic
   assert.equal((await progress.read("browser-a")).daily["2026-09-30"].score, 2);
 });
 
+test("Supabase repository keeps unit checkpoints and translates a diagnosis saved before the units", async () => {
+  const remote = fakePostgrest();
+  const progress = createProgressRepository({ url: "https://example.supabase.co", serviceKey: "server-secret", fetchImpl: remote.fetchImpl });
+  // Uma linha gravada antes das unidades: etapa antiga e nenhum checkpoint.
+  await progress.write("browser-a", { lessons: { welcome: { completedAt: 10 } }, placement: { acceptedModule: "everyday", updatedAt: 5 } });
+  assert.equal((await progress.read("browser-a")).placement.acceptedModule, "numbers");
+  const saved = await progress.write("browser-a", { updatedAt: 20, checkpoints: { meet: { passedAt: 15, best: 92, attempts: 2, updatedAt: 15 } } });
+  assert.deepEqual(saved.checkpoints.meet, { passedAt: 15, best: 92, attempts: 2, updatedAt: 15 });
+  // Um aparelho com o app antigo não conhece checkpoints e não pode apagá-los.
+  const older = await progress.write("browser-a", { updatedAt: 30, lessons: { sounds: { completedAt: 25 } } });
+  assert.equal(older.checkpoints.meet.passedAt, 15);
+  assert.deepEqual(Object.keys(older.lessons).sort(), ["sounds", "welcome"]);
+});
+
 test("Supabase repository retries a conflicting version", async () => {
   const remote = fakePostgrest();
   const progress = createProgressRepository({ url: "https://example.supabase.co", serviceKey: "server-secret", fetchImpl: remote.fetchImpl });

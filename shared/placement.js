@@ -25,14 +25,11 @@ export function placementResult(answers = {}) {
     return { id, label, correct: questions.filter(item => answers[item.id] === item.answer).length, total: questions.length };
   });
   const score = Object.fromEntries(areas.map(item => [item.id, item.correct]));
+  // O diagnóstico aponta uma unidade; as anteriores contam como vencidas. Ele não mede
+  // números nem horas, então a sugestão mais alta é a unidade 6, onde eles começam.
   let moduleId = "start";
   if (score.hiragana > 0) moduleId = "hiragana";
-  if (score.hiragana === 3) moduleId = "katakana";
-  if (score.hiragana === 3 && score.katakana === 3) {
-    moduleId = "kanji";
-    if (score.kanji >= 1 && score.vocabulary >= 1) moduleId = "sentences";
-    if (score.kanji >= 1 && score.vocabulary === 2 && score.reading >= 1) moduleId = "particles";
-    if (score.kanji === 2 && score.vocabulary === 2 && score.reading === 2 && score.particles === 3) moduleId = "everyday";
-  }
+  if (score.hiragana === 3) moduleId = "meet";
+  if (score.hiragana === 3 && score.katakana === 3 && score.vocabulary === 2 && score.particles >= 2 && score.reading >= 1) moduleId = "numbers";
   return { moduleId, areas, complete: PLACEMENT_QUESTIONS.every(item => Object.hasOwn(answers, item.id)) };
 }

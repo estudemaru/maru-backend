@@ -1,4 +1,4 @@
-import { MODULES } from './curriculum.js';
+import { getTheme } from './curriculum.js';
 import { dealRound } from './karuta.js';
 import { getPronunciation } from './pronunciation.js';
 import { toHiragana } from './shiritori.js';
@@ -6,11 +6,11 @@ import { toHiragana } from './shiritori.js';
 // Cada lição termina num jogo curto feito com os exemplos que ela acabou de mostrar.
 // Ouvir: o Maru lê um exemplo e a pessoa pega a carta certa (karuta).
 // Ler: a pessoa vê o exemplo em japonês e escolhe a leitura em romaji.
-// Etapas de sons e conversa usam ouvir; kanji, frases e partículas usam ler.
+// Temas de sons e conversa usam ouvir; kanji, frases e partículas usam ler.
 export const LESSON_GAME_KINDS = { listen: 'Ouviu, pegou', read: 'Leu, achou' };
-const LISTEN_MODULES = new Set(['start', 'hiragana', 'katakana', 'everyday', 'casual']);
+const LISTEN_THEMES = new Set(['start', 'hiragana', 'katakana', 'everyday', 'casual']);
 export const LESSON_ROUNDS = 5;
-export const lessonGameKind = lesson => lesson.game || (LISTEN_MODULES.has(lesson.moduleId) ? 'listen' : 'read');
+export const lessonGameKind = lesson => lesson.game || (LISTEN_THEMES.has(lesson.theme) ? 'listen' : 'read');
 const TABLE = 4;
 // Sequências como "か　き　く", "は → ば → ぱ" ou "一　二　三" viram uma carta por item.
 const SEQUENCE = /^[ぁ-ゖァ-ヺー一-龯々]+(?:(?:　| → )[ぁ-ゖァ-ヺー一-龯々]+)+$/u;
@@ -31,10 +31,10 @@ function cards(lesson) {
 }
 
 export function lessonGame(lesson, { random = Math.random } = {}) {
-  const module = MODULES.find(item => item.id === lesson.moduleId);
+  const theme = getTheme(lesson.theme);
   const own = cards(lesson);
-  // Lições com poucos exemplos completam a mesa com cartas das lições vizinhas da etapa.
-  const neighbours = (module?.lessons || []).filter(item => item.id !== lesson.id).flatMap(item => cards({ ...item, moduleId: lesson.moduleId })).filter(card => !own.some(item => item.card === card.card));
+  // Lições com poucos exemplos completam a mesa com cartas das lições vizinhas do tema.
+  const neighbours = (theme?.lessons || []).filter(item => item.id !== lesson.id).flatMap(item => cards(item)).filter(card => !own.some(item => item.card === card.card));
   const kind = lessonGameKind(lesson);
   const order = [...own];
   for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
