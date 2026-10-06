@@ -4,12 +4,15 @@ import { KAZU_ITEMS, kazuQuestion } from "./kazu.js";
 // Checkpoints da fase 1 (docs/TRILHA-N5.md): perguntas que já existem nas lições,
 // escolhidas à mão. Enquanto uma lição ainda mistura ideias de várias unidades, ela só
 // cede as perguntas sobre a ideia desta unidade (a de と fica para a 9, a de ね para a 11).
-// Unidades com poucas perguntas completam a prova com itens do jogo "Quanto, quando, qual".
+// Unidades com poucas perguntas completam a prova com itens do jogo "Quanto, quando, qual"
+// ou com o significado dos exemplos de uma lição em que todos os exemplos são da ideia
+// da unidade (as outras traduções da mesma lição são as alternativas erradas).
 // Para passar: 80% de acerto e nenhum conceito crítico com todas as perguntas erradas.
 export const PASS_RATIO = 0.8;
 const quiz = (concept, lessonId, ...indexes) => indexes.map(index => ({ type: "quiz", concept, lessonId, index }));
 // `groups` no formato categoria/grupo do jogo (pointing/place); `count` itens sorteados por tentativa.
 const kazu = (concept, lessonId, mode, count, ...groups) => [{ type: "kazu", concept, lessonId, mode, count, groups }];
+const meaning = (concept, lessonId, count) => [{ type: "meaning", concept, lessonId, count }];
 
 export const CHECKPOINTS = {
   hiragana: {
@@ -30,7 +33,7 @@ export const CHECKPOINTS = {
     ]
   },
   meet: {
-    concepts: { greetings: "os cumprimentos", identity: "は e です", question: "as perguntas com か", negative: "o “não é”, じゃないです", no: "o の", mo: "o も" },
+    concepts: { greetings: "os cumprimentos", identity: "は e です", question: "as perguntas com か", negative: "o “não é” com じゃないです", no: "o の", mo: "o も" },
     critical: ["identity", "question"],
     items: [
       ...quiz("greetings", "greetings", 0, 1, 2), ...quiz("identity", "sentence-identity", 0, 1, 2), ...quiz("identity", "particle-topic", 0),
@@ -65,7 +68,7 @@ export const CHECKPOINTS = {
   places: {
     concepts: { where: "ここ, そこ, あそこ e どこ", existence: "あります e います", words: "as palavras de lugar" },
     critical: ["where"],
-    items: [...quiz("where", "daily-find", 0, 1), ...kazu("where", "daily-find", "read", 3, "pointing/place"), ...quiz("words", "daily-find", 2), ...quiz("existence", "particle-existence", 0)]
+    items: [...quiz("where", "daily-find", 0, 1), ...kazu("where", "daily-find", "read", 3, "pointing/place"), ...meaning("where", "daily-find", 2), ...quiz("words", "daily-find", 2), ...quiz("existence", "particle-existence", 0)]
   },
   routine: {
     concepts: { object: "os verbos com を", place: "で e へ", tense: "o ます do presente e do futuro", requests: "os pedidos", help: "os pedidos de ajuda" },
@@ -78,7 +81,7 @@ export const CHECKPOINTS = {
   describe: {
     concepts: { adjectives: "os adjetivos" },
     critical: ["adjectives"],
-    items: quiz("adjectives", "sentence-describe", 0, 1, 2)
+    items: [...quiz("adjectives", "sentence-describe", 0, 1, 2), ...meaning("adjectives", "sentence-describe", 3)]
   },
   counting: {
     concepts: { counters: "os contadores" },
@@ -114,11 +117,20 @@ function fromKazu(item, random) {
   });
 }
 
+function fromMeaning(item, random) {
+  const examples = getLesson(item.lessonId).sections.flatMap(section => section.examples);
+  return shuffle(examples, random).slice(0, item.count).map(example => {
+    const choices = shuffle([example.pt, ...shuffle(examples.filter(other => other.pt !== example.pt), random).slice(0, 3).map(other => other.pt)], random);
+    return { key: `meaning:${item.lessonId}:${example.jp}`, concept: item.concept, lessonId: item.lessonId, prompt: `O que quer dizer ${example.jp}?`, choices, answer: choices.indexOf(example.pt), explanation: `${example.jp} (${example.romaji}): ${example.pt}` };
+  });
+}
+const BUILD = { quiz: (item, random) => [fromQuiz(item, random)], kazu: fromKazu, meaning: fromMeaning };
+
 // Uma tentativa: as perguntas da unidade, em ordem e com alternativas embaralhadas.
 export function checkpointQuestions(unitId, random = Math.random) {
   const checkpoint = CHECKPOINTS[unitId];
   if (!checkpoint) return [];
-  return shuffle(checkpoint.items.flatMap(item => item.type === "quiz" ? [fromQuiz(item, random)] : fromKazu(item, random)), random);
+  return shuffle(checkpoint.items.flatMap(item => BUILD[item.type](item, random)), random);
 }
 
 // `answers[i]` é a alternativa escolhida para `questions[i]`. Um conceito "perdido" é

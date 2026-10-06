@@ -97,6 +97,12 @@ export const LESSONS = MODULES.flatMap(module =>
 export const getLesson = id => LESSONS.find(lesson => lesson.id === id);
 export const getModule = id => MODULES.find(module => module.id === id);
 export const getTheme = id => THEMES.find(theme => theme.id === id);
+// A ordem da trilha: as unidades de 0 a 14 e, depois delas, os extras.
+export const moduleOrder = id => MODULES.findIndex(module => module.id === id);
+// Nas unidades 3 e 4 (depois do hiragana, antes do katakana), uma palavra em katakana é
+// palavra-imagem: a lição dá a leitura ao lado e o jogo deixa a palavra de fora. A unidade
+// 0 mostra o katakana de propósito, como exemplo das três escritas.
+export const katakanaAsPicture = lesson => moduleOrder(lesson.moduleId) >= moduleOrder("meet") && moduleOrder(lesson.moduleId) < moduleOrder("world");
 // "Unidade 3" na linha principal; "Extra" fora dela.
 export const moduleLabel = module => module.extra ? "Extra" : "Unidade " + module.number;
 

@@ -1,6 +1,6 @@
 import { lesson as l, section as s, example as e, question as q } from "./helpers.js";
 
-// Etapa "Quanto, quando e qual": números, horas, datas, contadores e これ/それ/あれ.
+// Números, horas, datas, contadores e これ/それ/あれ, nas unidades 4, 6, 7 e 13 da trilha.
 // Cada lição leva ao jogo do Arcade (shared/kazu.js) já na categoria dela.
 const practice = (category, label) => ({ route: "arcade/kazu", category, label });
 

@@ -1,4 +1,4 @@
-import { getTheme } from './curriculum.js';
+import { getTheme, getLesson, moduleOrder, katakanaAsPicture } from './curriculum.js';
 import { dealRound } from './karuta.js';
 import { getPronunciation } from './pronunciation.js';
 import { toHiragana } from './shiritori.js';
@@ -32,9 +32,13 @@ function cards(lesson) {
 
 export function lessonGame(lesson, { random = Math.random } = {}) {
   const theme = getTheme(lesson.theme);
-  const own = cards(lesson);
-  // Lições com poucos exemplos completam a mesa com cartas das lições vizinhas do tema.
-  const neighbours = (theme?.lessons || []).filter(item => item.id !== lesson.id).flatMap(item => cards(item)).filter(card => !own.some(item => item.card === card.card));
+  // Só entra o que a trilha já mostrou: nas unidades 3 e 4, nada em katakana.
+  const readable = card => !katakanaAsPicture(lesson) || !/[\u30A1-\u30FA]/u.test(card.jp);
+  const own = cards(lesson).filter(readable);
+  // Lições com poucos exemplos completam a mesa com cartas de lições do mesmo tema, desta
+  // unidade ou de uma anterior (o tema pode ter lições em unidades mais adiante).
+  const earlier = item => item.id !== lesson.id && moduleOrder(getLesson(item.id).moduleId) <= moduleOrder(lesson.moduleId);
+  const neighbours = (theme?.lessons || []).filter(earlier).flatMap(item => cards(item)).filter(readable).filter(card => !own.some(item => item.card === card.card));
   const kind = lessonGameKind(lesson);
   const order = [...own];
   for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
