@@ -1,5 +1,4 @@
-import { MODULES, UNITS, getLesson, getModule } from "./curriculum.js";
-import { CHECKPOINTS } from "./checkpoints.js";
+import { MODULES, UNITS, getLesson, getModule, hasCheckpoint } from "./curriculum.js";
 
 const isDone = (snapshot, lesson) => Boolean(snapshot.lessons[lesson.id]?.completedAt);
 
@@ -14,7 +13,7 @@ export function unitStates(snapshot) {
   let previousCleared = true;
   return UNITS.map((unit, index) => {
     const done = unit.lessons.filter(lesson => isDone(snapshot, lesson)).length;
-    const checkpoint = Boolean(CHECKPOINTS[unit.id]);
+    const checkpoint = hasCheckpoint(unit);
     const passed = Boolean(snapshot.checkpoints?.[unit.id]?.passedAt);
     const open = previousCleared || index <= placed || done > 0 || passed;
     const cleared = passed || index < placed || (open && !checkpoint && done === unit.lessons.length);
@@ -23,8 +22,9 @@ export function unitStates(snapshot) {
   });
 }
 
-// O primeiro ponto ainda não vencido: a unidade que a pessoa precisa terminar.
-export const currentUnit = snapshot => unitStates(snapshot).find(unit => !unit.cleared);
+// A unidade do katakana (5) vencida, por checkpoint ou pelo diagnóstico, conta como
+// kana aprendido, mesmo sem as lições de kana concluídas.
+export const katakanaCleared = snapshot => unitStates(snapshot).find(unit => unit.id === "world").cleared;
 
 export function isLessonOpen(snapshot, lessonId) {
   const module = getModule(getLesson(lessonId)?.moduleId);
@@ -68,12 +68,13 @@ export const moduleSeals = snapshot => MODULES.filter(module => module.lessons.l
   earned: module.lessons.every(lesson => isDone(snapshot, lesson))
 }));
 
-// Por que uma unidade fechada ainda não abriu, numa frase para a tela.
-export function unlockHint(snapshot, unitId) {
-  const states = unitStates(snapshot);
+// Por que uma unidade fechada ainda não abriu, numa frase para a tela. Quem já calculou
+// os estados (a trilha inteira) passa `states` para não refazer a conta a cada unidade.
+export function unlockHint(snapshot, unitId, states = unitStates(snapshot)) {
   const index = states.findIndex(unit => unit.id === unitId);
   const before = states.slice(0, index).reverse().find(unit => !unit.soon);
-  const current = currentUnit(snapshot);
+  // A unidade que a pessoa precisa terminar agora: a primeira ainda não vencida.
+  const current = states.find(unit => !unit.cleared);
   const name = unit => `Unidade ${unit.number} · ${unit.title}`;
   const gate = before.checkpoint ? `depois do checkpoint da ${name(before)}` : `depois das aulas da ${name(before)}`;
   return `Abre ${gate}.` + (current && current.id !== before.id ? ` Agora você está na ${name(current)}.` : "");

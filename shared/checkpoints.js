@@ -1,4 +1,4 @@
-import { getLesson } from "./curriculum.js";
+import { getLesson, moduleOrder } from "./curriculum.js";
 import { KAZU_ITEMS, kazuQuestion } from "./kazu.js";
 
 // Checkpoints da fase 1 (docs/TRILHA-N5.md): perguntas que já existem nas lições,
@@ -127,10 +127,13 @@ function fromMeaning(item, random) {
 const BUILD = { quiz: (item, random) => [fromQuiz(item, random)], kazu: fromKazu, meaning: fromMeaning };
 
 // Uma tentativa: as perguntas da unidade, em ordem e com alternativas embaralhadas.
+// Depois do katakana, a prova mostra a escrita como ela é (`plain`): trocar 四時 por
+// よじ no modo de leitura entregaria a resposta, e 人 virando ひと mudaria o contador.
 export function checkpointQuestions(unitId, random = Math.random) {
   const checkpoint = CHECKPOINTS[unitId];
   if (!checkpoint) return [];
-  return shuffle(checkpoint.items.flatMap(item => BUILD[item.type](item, random)), random);
+  const plain = moduleOrder(unitId) > moduleOrder("world");
+  return shuffle(checkpoint.items.flatMap(item => BUILD[item.type](item, random)), random).map(question => ({ ...question, plain }));
 }
 
 // `answers[i]` é a alternativa escolhida para `questions[i]`. Um conceito "perdido" é

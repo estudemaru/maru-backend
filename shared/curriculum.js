@@ -90,6 +90,9 @@ export const MODULES = [
 ];
 // As unidades da linha principal, em ordem; os extras ficam fora do bloqueio.
 export const UNITS = MODULES.filter(module => !module.extra);
+// Toda unidade com aulas termina num checkpoint, menos a 0, que é só orientação. As
+// perguntas ficam em checkpoints.js, que só carrega quando um checkpoint abre.
+export const hasCheckpoint = module => !module.extra && module.number !== "0" && module.lessons.length > 0;
 
 export const LESSONS = MODULES.flatMap(module =>
   module.lessons.map((lesson, index) => ({ ...lesson, moduleId: module.id, moduleTitle: module.title, index, theme: THEME_OF.get(lesson.id) }))
