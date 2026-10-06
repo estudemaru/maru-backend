@@ -138,7 +138,8 @@ export function createAuth({ supabaseUrl, anonKey, publicOrigin, allowedOrigins 
           });
           if (!response.ok) {
             const invalid = [400, 401, 403, 404, 422].includes(response.status)
-              && INVALID_SESSION_CODES.has(data.error_code || data.code);
+              && (INVALID_SESSION_CODES.has(data.error_code || data.code)
+                || (data.error_code === "validation_failed" && data.msg === "Refresh token is not valid"));
             if (invalid) return { user: null, access: "", cookies: clearCookies(secure) };
             sessionUnavailable();
           }

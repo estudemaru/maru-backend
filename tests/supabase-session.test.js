@@ -86,15 +86,24 @@ test("malformed refresh responses and network failures keep credentials for a la
 });
 
 test("confirmed revoked or expired sessions still clear cookies", async () => {
-  for (const code of ["refresh_token_not_found", "refresh_token_already_used", "session_not_found", "session_expired", "user_not_found", "user_banned"]) {
+  const errors = ["refresh_token_not_found", "refresh_token_already_used", "session_not_found", "session_expired", "user_not_found", "user_banned"]
+    .map(error_code => ({ error_code }));
+  errors.push({ error_code: "validation_failed", msg: "Refresh token is not valid" });
+  for (const error of errors) {
     const auth = authWith(async input => String(input).endsWith("/user")
-      ? Response.json({}, { status: 401 }) : Response.json({ error_code: code }, { status: 400 }));
+      ? Response.json({}, { status: 401 }) : Response.json(error, { status: 400 }));
     const session = await auth.session(request());
     assert.equal(session.user, null);
     assert.equal(session.access, "");
     assert.equal(session.cookies.length, 2);
     for (const value of session.cookies) assert.match(value, /Max-Age=0/);
   }
+});
+
+test("an unrelated validation failure cannot end the session", async () => {
+  const auth = authWith(async input => String(input).endsWith("/user")
+    ? Response.json({}, { status: 401 }) : Response.json({ error_code: "validation_failed", msg: "Request could not be validated" }, { status: 400 }));
+  await assert.rejects(auth.session(request()), error => error.status === 503);
 });
 
 test("concurrent requests share one renewal and completed tokens are not cached", async () => {
