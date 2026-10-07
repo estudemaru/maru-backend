@@ -1,8 +1,15 @@
 # APIs e créditos
 
-## Pronúncia: TTS Quest / VOICEVOX
+## Pronúncia: Web Speech API e TTS Quest / VOICEVOX
 
-O Maru solicita a pronúncia quando o aluno toca no botão. O backend consulta
+A interface prioriza uma voz japonesa da Web Speech API, preferindo uma voz
+local do aparelho. A fala usa a leitura ensinada no catálogo e começa no clique,
+sem consultar este backend. A lista de vozes pode chegar de forma assíncrona;
+uma voz ausente, que falhe ou não inicie em 2,5 segundos usa a alternativa remota.
+A disponibilidade e a qualidade das vozes dependem do navegador e do aparelho.
+Vozes marcadas como remotas ainda podem precisar de conexão com a internet.
+
+Na alternativa remota, o backend consulta
 `https://api.tts.quest/v3/voicevox/synthesis`, com a leitura ensinada e `speaker=30`
 (No.7, estilo アナウンス: voz adulta de locução, escolhida por soar neutra).
 A resposta contém uma URL remota de streaming, reproduzida pelo navegador.
@@ -16,7 +23,7 @@ Nenhum modelo de voz, MP3 ou gerador local faz parte do projeto.
   sem pedido prévio, como o Maru gratuito e sem anúncios. Uso comercial (anúncios,
   assinatura, venda) exige licença paga; consulte os termos antes de mudar o modelo.
 
-É necessário acesso à internet. A modalidade pública pode impor espera entre
+Essa alternativa exige acesso à internet. A modalidade pública pode impor espera entre
 consultas. O serviço respeita `retryAfter`, informa o intervalo e reutiliza URLs
 válidas por dez minutos. A disponibilidade da API não é controlada pelo Maru.
 
@@ -26,6 +33,9 @@ frases livres digitadas pelo aluno não são enviadas ao provedor de voz.
 
 Os efeitos de acerto e conclusão do Arcade usam osciladores Web Audio no navegador.
 São opcionais, independentes da pronúncia e não criam arquivos.
+
+- [Web Speech API: síntese e vozes](https://webaudio.github.io/web-speech-api/#tts-section).
+- [Vozes locais e remotas](https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisVoice/localService).
 
 ## Identidade: Supabase Auth
 
