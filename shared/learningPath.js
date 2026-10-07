@@ -1,6 +1,11 @@
 import { MODULES, UNITS, getLesson, getModule, hasCheckpoint } from "./curriculum.js";
 
 const isDone = (snapshot, lesson) => Boolean(snapshot.lessons[lesson.id]?.completedAt);
+// Estas unidades eram vazias. Progresso numa unidade posterior prova que a pessoa
+// já tinha passado por elas: as aulas novas abrem para revisão sem apagar esse acesso.
+const previouslyEmpty = new Set(["likes", "past", "te-form"]);
+export const FINAL_UNITS_ADDED_AT = Date.parse("2026-10-07T16:21:39Z");
+const countingAlreadyOpen = new Set(["likes", "past", "counting"]);
 
 // O estado de cada unidade, em ordem. Uma unidade abre quando:
 // - a anterior foi vencida (checkpoint aprovado; sem checkpoint, todas as aulas lidas);
@@ -10,12 +15,20 @@ const isDone = (snapshot, lesson) => Boolean(snapshot.lessons[lesson.id]?.comple
 // Unidades ainda sem aulas (`soon`) não seguram ninguém: abrem e já contam como vencidas.
 export function unitStates(snapshot) {
   const placed = UNITS.findIndex(unit => unit.id === snapshot.placement?.acceptedModule);
+  // Na versão anterior, aprovar Descrição atravessava as duas unidades vazias e
+  // abria Quantidades, mesmo sem nenhuma aula dela concluída. Preserve esse acesso.
+  const describedAt = Number(snapshot.checkpoints?.describe?.passedAt) || 0;
+  const legacyCountingAccess = describedAt > 0 && describedAt < FINAL_UNITS_ADDED_AT;
+  const furthestProgress = UNITS.reduce((furthest, unit, index) =>
+    unit.lessons.some(lesson => isDone(snapshot, lesson)) || snapshot.checkpoints?.[unit.id]?.passedAt ? index : furthest, -1);
   let previousCleared = true;
   return UNITS.map((unit, index) => {
     const done = unit.lessons.filter(lesson => isDone(snapshot, lesson)).length;
     const checkpoint = hasCheckpoint(unit);
     const passed = Boolean(snapshot.checkpoints?.[unit.id]?.passedAt);
-    const open = previousCleared || index <= placed || done > 0 || passed;
+    const open = previousCleared || index <= placed || done > 0 || passed
+      || (previouslyEmpty.has(unit.id) && index < furthestProgress)
+      || (legacyCountingAccess && countingAlreadyOpen.has(unit.id));
     const cleared = passed || index < placed || (open && !checkpoint && done === unit.lessons.length);
     previousCleared = cleared;
     return { ...unit, open, cleared, passed, checkpoint, done, soon: !unit.lessons.length };

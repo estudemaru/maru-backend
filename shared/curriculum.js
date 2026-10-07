@@ -4,6 +4,7 @@ import { hiraganaRowLessons, katakanaRowLessons } from "./lessons/kana.js";
 import { kanjiLessons, sentenceLessons, particleLessons } from "./lessons/grammar.js";
 import { everydayLessons, casualLessons } from "./lessons/conversation.js";
 import { numberLessons } from "./lessons/numbers.js";
+import { likesLessons, pastLessons, teLessons } from "./lessons/n5.js";
 
 // Every lesson lives in a themed file; each unit lists its lessons by ID in order.
 // IDs are stored in progress: renaming one needs a migration.
@@ -16,6 +17,7 @@ const ALL = new Map([
   ...particleLessons, ...additionalLessons.particles,
   ...everydayLessons, ...additionalLessons.everyday,
   ...numberLessons,
+  ...likesLessons, ...pastLessons, ...teLessons,
   ...casualLessons, ...additionalLessons.casual
 ].map(lesson => [lesson.id, lesson]));
 const pick = ids => ids.map(id => {
@@ -35,7 +37,7 @@ export const THEMES = [
   { id: "kanji", number: "04", title: "Seus primeiros kanji", subtitle: "Desenhos com significado, um traço de cada vez.", outcome: "reconhecer números e kanji da natureza dentro de palavras", symbol: "日", color: "sand",
     lessons: pick(["kanji-meaning", "kanji-numbers", "kanji-nature", "kanji-parts"]) },
   { id: "sentences", number: "05", title: "Construa frases", subtitle: "Apresente-se, pergunte e conte sua rotina.", outcome: "se apresentar, perguntar e falar do que faz, fez e não fez", symbol: "文", color: "sky",
-    lessons: pick(["sentence-identity", "sentence-question", "sentence-actions", "sentence-time", "sentence-describe"]) },
+    lessons: pick(["sentence-identity", "sentence-question", "sentence-actions", "sentence-time", "sentence-describe", ...likesLessons.map(lesson => lesson.id), ...pastLessons.map(lesson => lesson.id), ...teLessons.map(lesson => lesson.id)]) },
   { id: "particles", number: "06", title: "Conecte com partículas", subtitle: "Descubra o papel de cada palavra na frase.", outcome: "escolher は, が, を, に, で e as outras partículas do começo", symbol: "は", color: "peach",
     lessons: pick(["particle-topic", "particle-place", "particle-connect", "particle-existence"]) },
   { id: "everyday", number: "07", title: "Japonês no dia a dia", subtitle: "Peça um café, encontre lugares e converse.", outcome: "pedir, perguntar o caminho e manter uma conversa curta", symbol: "話", color: "sage",
@@ -50,7 +52,8 @@ const THEME_OF = new Map(THEMES.flatMap(theme => theme.lessons.map(lesson => [le
 // A trilha: 15 unidades em ordem (docs/TRILHA-N5.md), cada uma aberta pelo checkpoint
 // da anterior, e os extras, sempre abertos. Os IDs das unidades não repetem os das
 // etapas antigas com outro sentido, para o diagnóstico salvo poder ser traduzido.
-// Fase 1: as lições que ensinam várias ideias ficam inteiras, na unidade da primeira.
+// As lições antigas que ensinam várias ideias ficam inteiras, na unidade da primeira.
+// As unidades 11, 12 e 14 já têm suas próprias lições e atividades.
 const unit = (number, id, title, subtitle, outcome, symbol, color, ids) => ({ id, number: String(number), title, subtitle, outcome, symbol, color, lessons: pick(ids) });
 const extra = (id, title, subtitle, outcome, symbol, color, ids) => ({ id, number: "", extra: true, title, subtitle, outcome, symbol, color, lessons: pick(ids) });
 export const MODULES = [
@@ -76,11 +79,11 @@ export const MODULES = [
     ["sentence-actions", "particle-place", "sentence-time", "daily-order", "daily-help", "daily-dialogue"]),
   unit(10, "describe", "Descrição", "Adjetivos para pessoas, coisas e lugares.", "descrever pessoas, coisas e lugares", "形", "lavender",
     ["sentence-describe"]),
-  unit(11, "likes", "Gostos", "Do que você gosta e do que não gosta tanto.", "dizer do que gosta e perguntar preferências", "好", "peach", []),
-  unit(12, "past", "Passado", "Contar o que aconteceu.", "contar o que aconteceu", "昨", "sky", []),
+  unit(11, "likes", "Gostos", "Do que você gosta e do que não gosta tanto.", "dizer do que gosta e perguntar preferências", "好", "peach", likesLessons.map(lesson => lesson.id)),
+  unit(12, "past", "Passado", "Contar o que aconteceu.", "contar o que aconteceu", "昨", "sky", pastLessons.map(lesson => lesson.id)),
   unit(13, "counting", "Quantidades", "Contar coisas, pessoas e bichos.", "contar coisas, pessoas e objetos", "個", "sand",
     ["num-counters"]),
-  unit(14, "te-form", "Forma て", "Pedir, encadear ações e pedir permissão.", "pedir, encadear ações e dizer o que pode e o que não pode", "て", "sage", []),
+  unit(14, "te-form", "Forma て", "Pedir, encadear ações e pedir permissão.", "pedir, encadear ações e dizer o que pode e o que não pode", "て", "sage", teLessons.map(lesson => lesson.id)),
   extra("curious", "Gramática para curiosos", "Como uma frase japonesa se monta, para quem gosta de entender o porquê.", "entender as peças de uma frase japonesa", "文", "sky",
     ["how-it-works", "start-language"]),
   extra("kanji", "Kanji como sistema", "Significados, leituras e as peças que se repetem.", "entender como os kanji funcionam", "字", "sand",

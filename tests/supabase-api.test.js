@@ -25,7 +25,9 @@ test("Edge API keeps the browser contract and rejects stale account writes", asy
   });
   const base = "https://example.supabase.co/functions/v1/maru-api/api";
   assert.equal((await (await handler(new Request(base + "/health"))).json()).ok, true);
-  assert.equal((await (await handler(new Request(base + "/content"))).json()).lessons.length, 57);
+  const content = await (await handler(new Request(base + "/content"))).json();
+  assert.equal(content.lessons.length, 70);
+  for (const id of ['likes', 'past', 'te-form']) assert.ok(content.lessons.some(lesson => lesson.moduleId === id && lesson.quiz.length >= 3), id);
   const audio = await handler(new Request(base + "/audio", {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: "こんにちは" })
   }));

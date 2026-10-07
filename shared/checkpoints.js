@@ -83,10 +83,29 @@ export const CHECKPOINTS = {
     critical: ["adjectives"],
     items: [...quiz("adjectives", "sentence-describe", 0, 1, 2), ...meaning("adjectives", "sentence-describe", 3)]
   },
+  likes: {
+    concepts: { preferences: "が com すき e a negação de preferências", degree: "とても e あまり", reactions: "ね e よ na conversa" },
+    critical: ["preferences"],
+    items: [...quiz("preferences", "likes-preferences", 0, 1, 2), ...quiz("degree", "likes-degree", 0, 1, 2), ...quiz("reactions", "likes-reactions", 0, 1, 2)]
+  },
+  past: {
+    concepts: { nouns: "でした e じゃありませんでした", verbs: "ました e ませんでした", adjectives: "os adjetivos no passado" },
+    critical: ["verbs"],
+    items: [...quiz("nouns", "past-nouns", 0, 1, 2), ...quiz("verbs", "past-actions", 0, 1, 2), ...quiz("adjectives", "past-adjectives", 0, 1, 2, 3)]
+  },
   counting: {
     concepts: { counters: "os contadores" },
     critical: ["counters"],
     items: [...quiz("counters", "num-counters", 0, 1, 2), ...kazu("counters", "num-counters", "meaning", 5, "counters/tsu", "counters/nin", "counters/hon", "counters/mai", "counters/hiki")]
+  },
+  "te-form": {
+    concepts: { formation: "a forma て dos três grupos e a exceção いく", requests: "os pedidos com てください", sequence: "a sequência de ações", ongoing: "as ações em andamento com ています", permission: "as permissões e proibições" },
+    critical: ["formation"],
+    items: [
+      ...quiz("formation", "te-group-two", 0), ...quiz("formation", "te-group-one", 1, 3), ...quiz("formation", "te-irregular", 0, 1, 2),
+      ...quiz("requests", "te-requests", 1), ...quiz("sequence", "te-sequence", 0), ...quiz("ongoing", "te-ongoing", 1),
+      ...quiz("permission", "te-permission", 0, 1, 2)
+    ]
   }
 };
 

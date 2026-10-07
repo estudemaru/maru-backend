@@ -17,7 +17,10 @@ test("API serves content, validates phrases and round-trips isolated progress", 
   const health = await fetch(base + "/api/health").then(res => res.json());
   assert.equal(health.ok, true);
   const content = await fetch(base + "/api/content").then(res => res.json());
-  assert.equal(content.lessons.length, 57);
+  assert.equal(content.lessons.length, 70);
+  for (const id of ['likes', 'past', 'te-form']) {
+    assert.ok(content.lessons.some(lesson => lesson.moduleId === id && lesson.quiz.length >= 3), id);
+  }
   assert.equal(content.beginnerKanji.length, 20);
   assert.ok(content.vocabulary.length >= 60);
   assert.equal(content.exerciseGroups.length, 6);
